@@ -125,21 +125,47 @@
     }
 
     .status-pill {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      z-index: 3;
       display: inline-flex;
       align-items: center;
-      margin-top: 6px;
-      padding: 8px 14px;
+      gap: 8px;
+      padding: 8px 15px;
       border-radius: 999px;
-      background: rgba(255,255,255,0.18);
+      background: rgba(0, 0, 0, 0.30);
       color: #fff;
-      border: 1px solid rgba(255,255,255,0.28);
-      font-size: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.38);
+      font-size: 16px;
       font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+
+    .live-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #ff4d4f;
+      box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.65);
+      animation: livePulse 1.5s infinite;
+    }
+
+    @keyframes livePulse {
+      0%   { box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.6); }
+      70%  { box-shadow: 0 0 0 9px rgba(255, 77, 79, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 77, 79, 0); }
     }
 
     .status-pill.closed {
-      background: rgba(255, 219, 219, 0.26);
-      color: #fff2f2;
+      background: rgba(0, 0, 0, 0.34);
+      color: #dfe4e8;
+    }
+
+    .status-pill.closed .live-dot {
+      background: #9aa3aa;
+      box-shadow: none;
+      animation: none;
     }
 
     .top-note-grid {
@@ -242,6 +268,109 @@
 
     .accordion.open .accordion-content { display: block; }
 
+    .box-heading {
+      margin: 16px 0 8px;
+      font-size: 20px;
+      color: #125a78;
+      font-weight: 900;
+    }
+
+    .box-heading:first-child { margin-top: 0; }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .hero-actions .status-pill { margin-top: 0; }
+
+    .hero-details-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--gold);
+      color: #513400;
+      border: none;
+      border-radius: 999px;
+      padding: 9px 18px;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 14px 0 12px;
+    }
+
+    .hero-meta .badge { margin-bottom: 0; }
+
+    .hero-copy h1 { padding-right: 104px; }
+
+    .details-panel { margin: 0; }
+    .details-panel .accordion-content { display: none; }
+    .details-panel.open .accordion-content {
+      display: block;
+      margin-bottom: 18px;
+      padding: 16px;
+      border: 3px solid #ffd978;
+      border-radius: 22px;
+      background: #fffaf0;
+      box-shadow: var(--shadow);
+    }
+
+    .reveal-block { display: none; }
+    .reveal-block.show { display: block; }
+
+    .pickup-toggle {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+      padding: 16px 18px;
+      border: 3px solid var(--blue-line);
+      border-radius: 18px;
+      background: #fff;
+      color: #125a78;
+      font-size: 24px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .pickup-section { display: none; padding-top: 14px; }
+    .pickup-section.open { display: block; }
+
+    .hero-steps {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      line-height: 1.6;
+    }
+
+    .hero-steps b {
+      display: block;
+      font-size: 16px;
+      color: #fff;
+      margin-bottom: 2px;
+    }
+
+    .hero-steps span {
+      display: block;
+      font-size: 17px;
+      font-weight: 800;
+      color: #eefaff;
+    }
+
     .route-item {
       display: grid;
       grid-template-columns: 88px 1fr;
@@ -263,6 +392,14 @@
       font-size: 19px;
       line-height: 1.5;
       font-weight: 700;
+    }
+
+    .place-addr {
+      margin-top: 4px;
+      font-size: 14px;
+      line-height: 1.45;
+      font-weight: 700;
+      color: #7a8791;
     }
 
     .wizard-card {
@@ -535,6 +672,306 @@
       color: var(--error-text);
     }
 
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .mode-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .mode-btn {
+      padding: 24px 16px;
+      border-radius: 24px;
+      border: 3px solid;
+      font-size: 26px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 12px 28px rgba(15, 128, 173, 0.14);
+    }
+
+    .mode-btn.signup {
+      background: #eaf7ff;
+      border-color: #bfe5f6;
+      color: #0a6388;
+    }
+
+    .mode-btn.query {
+      background: #fff6e3;
+      border-color: #ffd978;
+      color: #a06a00;
+    }
+
+    .mode-btn.active.signup {
+      background: linear-gradient(180deg, var(--main), var(--main-dark));
+      border-color: var(--main-dark);
+      color: #fff;
+    }
+
+    .mode-btn.active.query {
+      background: linear-gradient(180deg, #ffcc4d, #f0a500);
+      border-color: #e09a00;
+      color: #4a3000;
+    }
+
+    .mode-panel { display: none; }
+    .mode-panel.show { display: block; }
+
+    .col-card {
+      border-radius: 28px;
+      padding: 22px;
+      border: 3px solid #f4f0e8;
+      background: var(--paper);
+      box-shadow: 0 16px 40px rgba(15, 128, 173, 0.16);
+    }
+
+    .col-card.signup {
+      background: #f2fbff;
+      border-color: #bfe5f6;
+    }
+
+    .col-card.query {
+      background: #fffaf0;
+      border-color: #ffd978;
+    }
+
+    .col-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 16px;
+      padding-bottom: 12px;
+      font-size: 28px;
+      font-weight: 900;
+      color: #125a78;
+      border-bottom: 3px dashed transparent;
+    }
+
+    .col-card.signup .col-title {
+      color: #0a6388;
+      border-bottom-color: #bfe5f6;
+    }
+
+    .col-card.query .col-title {
+      color: #a06a00;
+      border-bottom-color: #ffd978;
+    }
+
+    .query-row {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    #queryName {
+      flex: 1;
+      min-width: 0;
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 3px solid #b9d7e6;
+      font-size: 20px;
+      font-family: inherit;
+      outline: none;
+      background: #fff;
+    }
+
+    #queryName:focus {
+      border-color: var(--main);
+      box-shadow: 0 0 0 4px rgba(15, 128, 173, 0.16);
+    }
+
+    .query-btn {
+      width: auto;
+      flex: 0 0 auto;
+      padding: 14px 22px;
+      font-size: 20px;
+      border-radius: 16px;
+    }
+
+    .query-result { margin-top: 16px; }
+
+    .qr-card {
+      border-radius: 20px;
+      padding: 16px;
+      background: var(--blue-soft);
+      border: 3px solid var(--blue-line);
+      margin-bottom: 12px;
+    }
+
+    .qr-bus {
+      font-size: 30px;
+      font-weight: 900;
+      color: #0a6388;
+      margin-bottom: 8px;
+    }
+
+    .qr-row {
+      font-size: 18px;
+      line-height: 1.6;
+      font-weight: 700;
+      color: #24313b;
+    }
+
+    .qr-label { color: #52636c; }
+
+    .qr-empty {
+      padding: 14px;
+      border-radius: 16px;
+      background: var(--error);
+      color: var(--error-text);
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    .roster-card {
+      background: var(--paper);
+      border-radius: 30px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 2px solid #f4f0e8;
+      margin-bottom: 18px;
+    }
+
+    .roster-toggle {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      font-size: 28px;
+      font-weight: 900;
+      color: #125a78;
+    }
+
+    .roster-body { display: none; margin-top: 14px; }
+    .roster-body.show { display: block; }
+
+    .bus-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 10px 0 16px;
+    }
+
+    .bus-tab {
+      padding: 10px 16px;
+      border-radius: 999px;
+      border: 3px solid var(--blue-line);
+      background: #fff;
+      color: #125a78;
+      font-size: 18px;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .bus-tab.active {
+      background: var(--selected);
+      border-color: var(--selected-line);
+      color: #6b4a00;
+    }
+
+    .roster-list { font-size: 18px; }
+
+    .roster-names {
+      margin: 8px 0 0;
+      padding-left: 1.4em;
+      line-height: 1.8;
+      font-weight: 800;
+      columns: 2;
+    }
+
+    .roster-empty { color: var(--muted); font-weight: 700; }
+
+    .qr-banner {
+      font-size: 20px;
+      font-weight: 800;
+      color: #24313b;
+      margin-bottom: 12px;
+    }
+
+    .bus-sheet {
+      border: 3px solid var(--blue-line);
+      border-radius: 20px;
+      padding: 16px;
+      background: #fff;
+    }
+
+    .bs-head {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .bs-bus {
+      font-size: 30px;
+      font-weight: 900;
+      color: #0a6388;
+    }
+
+    .bs-count {
+      font-size: 18px;
+      font-weight: 800;
+      color: #52636c;
+    }
+
+    .bs-line {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.6;
+      color: #24313b;
+      margin-bottom: 6px;
+    }
+
+    .bs-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 18px;
+      font-size: 17px;
+      font-weight: 800;
+      color: #24313b;
+      margin-bottom: 4px;
+    }
+
+    .bs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .bs-seat {
+      background: #f6fbfe;
+      border: 2px solid var(--blue-line);
+      border-radius: 12px;
+      padding: 10px 8px;
+      font-size: 16px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .bs-seat.me {
+      background: var(--selected);
+      border-color: var(--selected-line);
+      color: #6b4a00;
+    }
+
+    .bs-no {
+      display: inline-block;
+      min-width: 1.6em;
+      color: #0a6388;
+    }
+
     .footer {
       text-align: center;
       color: #777;
@@ -545,6 +982,9 @@
     @media (max-width: 760px) {
       h1 { font-size: 34px; }
       .subtitle { font-size: 19px; }
+      .two-col { grid-template-columns: 1fr; }
+      .roster-names { columns: 1; }
+      .bs-grid { grid-template-columns: repeat(2, 1fr); }
       .fee-grid, .top-note-grid {
         grid-template-columns: 1fr;
       }
@@ -590,133 +1030,109 @@
     <div class="container">
 
       <section class="hero">
+        <div id="statusPill" class="status-pill">
+          <span class="live-dot"></span>
+          <span id="statusText">報名開放中</span>
+        </div>
         <div class="hero-copy">
-          <div id="dateBadge" class="badge">2026 / 11 / 8</div>
           <h1 id="activityTitle">2026 屏東西岐城、西方道堂之旅</h1>
+
+          <div class="hero-meta">
+            <div id="dateBadge" class="badge">活動時間：2026.11.8 星期日</div>
+            <button type="button" class="hero-details-btn" onclick="toggleAccordion('detailsBox','detailsIcon')">
+              查看行程與費用 <span id="detailsIcon">＋</span>
+            </button>
+          </div>
+
           <p id="activitySubtitle" class="subtitle">請輸入姓名並選擇上車地點。可以一次報名多人，一行一個姓名。</p>
-          <div id="statusPill" class="status-pill">報名開放中</div>
 
-          <div class="top-note-grid">
-            <div class="top-note">
-              <b>步驟 1</b>
-              <span>輸入姓名，一行一個人</span>
-            </div>
-            <div class="top-note">
-              <b>步驟 2</b>
-              <span>選擇上車地點</span>
-            </div>
-            <div class="top-note">
-              <b>步驟 3</b>
-              <span>確認資料後送出</span>
-            </div>
+          <div class="hero-steps">
+            <b>操作順序</b>
+            <span>① 輸入姓名　→　② 選擇上車地點　→　③ 送出報名</span>
           </div>
         </div>
       </section>
 
-      <section class="fee-grid">
-        <div class="fee-card">
-          <div class="fee-top">遊覽車費用</div>
-          <div id="busFee" class="fee-price">大人 $1100｜小孩 $900</div>
-        </div>
-        <div class="fee-card self">
-          <div class="fee-top">屏東自行開車</div>
-          <div id="selfDriveFee" class="fee-price">大人 $800｜小孩 $600</div>
+      <section id="detailsBox" class="details-panel">
+        <div class="accordion-content">
+          <h3 class="box-heading">費用</h3>
+          <div class="fee-grid">
+            <div class="fee-card">
+              <div class="fee-top">遊覽車費用</div>
+              <div id="busFee" class="fee-price">大人 $1100｜小孩 $900</div>
+            </div>
+            <div class="fee-card self">
+              <div class="fee-top">屏東自行開車</div>
+              <div id="selfDriveFee" class="fee-price">大人 $800｜小孩 $600</div>
+            </div>
+          </div>
+
+          <h3 class="box-heading">行程</h3>
+          <div id="itineraryList">
+            <div class="route-item"><div class="time">08:00</div><div class="place">各上車地點集合出發</div></div>
+          </div>
+
+          <h3 class="box-heading">注意事項</h3>
+          <div id="noticeBox" class="notice">
+            費用包含午餐、水2瓶、下午茶、香火錢、車資。
+            請著輕便服裝、運動鞋方便靈動參拜。
+          </div>
         </div>
       </section>
 
-      <section id="itineraryBox" class="accordion">
-        <button type="button" onclick="toggleAccordion('itineraryBox','itineraryIcon')">
-          <span>查看行程內容</span>
-          <span id="itineraryIcon">＋</span>
-        </button>
-        <div id="itineraryList" class="accordion-content">
-          <div class="route-item"><div class="time">08:00</div><div class="place">各上車地點集合出發</div></div>
-        </div>
+      <section class="mode-switch">
+        <button type="button" id="tabSignup" class="mode-btn signup" onclick="setMode('signup')">📝 報名登記</button>
+        <button type="button" id="tabQuery" class="mode-btn query" onclick="setMode('query')">🔍 查詢車次</button>
       </section>
 
-      <section class="wizard-card">
-        <div class="progress-wrap">
-          <div class="progress-steps">
-            <div id="progress1" class="progress-step active">1. 填寫姓名</div>
-            <div id="progress2" class="progress-step">2. 選擇上車地點</div>
-            <div id="progress3" class="progress-step">3. 確認送出</div>
-          </div>
-          <div class="bar">
-            <div id="barFill" class="bar-fill"></div>
-          </div>
-        </div>
+      <div id="signupPanel" class="mode-panel">
+        <div class="col-card signup">
+          <form id="signupForm">
+            <label class="section-label" for="names">① 報名姓名（一行一個人）</label>
+            <textarea id="names" name="names" placeholder="請輸入姓名，一行一個人&#10;例如：&#10;呂佩恩&#10;呂元訓&#10;李秀鳳"></textarea>
 
-        <form id="signupForm">
-          <section id="step1" class="step-panel active">
-            <h2 class="step-title">第 1 步：填寫姓名</h2>
-            <p class="step-sub">可以一次輸入多位報名者，一行一個姓名，系統會自動拆成一人一筆資料。</p>
+            <div id="afterNameBlock" class="reveal-block">
+              <button type="button" id="pickupToggle" class="pickup-toggle" onclick="togglePickup()">
+                <span>② 選擇上車地點</span>
+                <span id="pickupIcon">＋</span>
+              </button>
 
-            <label class="section-label" for="names">報名姓名</label>
-            <div class="hint">
-              範例：<br>
-              呂佩恩<br>
-              呂元訓<br>
-              李秀鳳
-            </div>
-            <textarea id="names" name="names" placeholder="請在這裡輸入姓名&#10;一行一個人"></textarea>
+              <div id="pickupSection" class="pickup-section">
+                <div id="pickupGrid" class="pickup-grid"></div>
 
-            <div class="actions single">
-              <button type="button" class="btn btn-primary" onclick="goStep2()">下一步：選擇上車地點</button>
-            </div>
-          </section>
-
-          <section id="step2" class="step-panel">
-            <h2 class="step-title">第 2 步：選擇上車地點</h2>
-            <p class="step-sub">請點選一個上車地點。多人報名會使用同一個上車地點。</p>
-
-            <div id="pickupGrid" class="pickup-grid"></div>
-
-            <div class="actions">
-              <button type="button" class="btn btn-secondary" onclick="goToStep(1)">上一步</button>
-              <button type="button" class="btn btn-primary" onclick="goStep3()">下一步：確認資料</button>
-            </div>
-          </section>
-
-          <section id="step3" class="step-panel">
-            <h2 class="step-title">第 3 步：確認送出</h2>
-            <p class="step-sub">請確認姓名與上車地點，沒問題再送出。</p>
-
-            <div class="confirm-box">
-              <h3>報名確認</h3>
-              <div class="confirm-row">
-                <div class="confirm-label">報名人數</div>
-                <div id="confirmCount" class="confirm-value">0 人</div>
-              </div>
-              <div class="confirm-row">
-                <div class="confirm-label">上車地點</div>
-                <div id="confirmPickup" class="confirm-value">尚未選擇</div>
-              </div>
-              <div class="confirm-row">
-                <div class="confirm-label">費用提醒</div>
-                <div id="confirmFee" class="confirm-value">請依實際大人／小孩人數計算</div>
-              </div>
-              <div class="confirm-row">
-                <div class="confirm-label">姓名名單</div>
-                <div class="confirm-value">
-                  <ol id="confirmNames" class="name-list"></ol>
+                <div class="actions single">
+                  <button id="submitBtn" class="btn btn-primary" type="submit">送出報名</button>
                 </div>
               </div>
             </div>
+          </form>
 
-            <div class="actions">
-              <button type="button" class="btn btn-secondary" onclick="goToStep(2)">上一步</button>
-              <button id="submitBtn" class="btn btn-primary" type="submit">確認送出報名</button>
-            </div>
-          </section>
-        </form>
-
-        <div id="result" class="result"></div>
-
-        <div id="noticeBox" class="notice">
-          費用包含午餐、水2瓶、下午茶、香火錢、車資。
-          請著輕便服裝、運動鞋方便靈動參拜。
+          <div id="result" class="result"></div>
         </div>
-      </section>
+      </div>
+
+      <div id="queryPanel" class="mode-panel">
+        <div class="col-card query">
+          <label class="section-label" for="queryName">輸入你的姓名，查你的車次與車表</label>
+          <div class="query-row">
+            <input id="queryName" type="text" placeholder="輸入姓名" autocomplete="off" />
+            <button type="button" class="btn btn-primary query-btn" onclick="doQuery()">查詢</button>
+          </div>
+          <div id="queryResult" class="query-result"></div>
+        </div>
+
+        <section class="roster-card">
+          <button type="button" class="roster-toggle" onclick="toggleRoster()">
+            <span>🚌 各車次名單</span>
+            <span id="rosterIcon">＋</span>
+          </button>
+          <div id="rosterBody" class="roster-body">
+            <p class="step-sub">點選車次，查看該車的報名名單。</p>
+            <div id="busTabs" class="bus-tabs"></div>
+            <div id="rosterList" class="roster-list"></div>
+          </div>
+        </section>
+      </div>
 
       <div class="footer">西岐城活動報名系統</div>
     </div>
@@ -737,7 +1153,10 @@
         selfDriveAdultFee: "800",
         selfDriveChildFee: "600",
         feeIncludes: "費用包含午餐、水2瓶、下午茶、香火錢、車資。",
-        notes: "請著輕便服裝、運動鞋方便靈動參拜。"
+        notes: "請著輕便服裝、運動鞋方便靈動參拜。",
+        xiqichengAddress: "屏東縣長治鄉新興路99巷73號",
+        xifangAddress: "屏東縣萬巒鄉新厝村富山路1號",
+        lunchAddress: "新和喜宴會館－屏東縣長治鄉繁昌村振興路16-11號（08-7623889）"
       },
       itinerary: [
         { time: "08:00", content: "高雄道場＋高雄文化中心＋台南永康出發" },
@@ -762,8 +1181,30 @@
     const form = document.getElementById("signupForm");
     const resultBox = document.getElementById("result");
     const submitBtn = document.getElementById("submitBtn");
+    const afterNameBlock = document.getElementById("afterNameBlock");
 
-    document.addEventListener("DOMContentLoaded", loadStatus);
+    document.getElementById("names").addEventListener("input", updateRevealState);
+
+    function updateRevealState() {
+      const hasName = getCurrentNames().length > 0;
+      afterNameBlock.classList.toggle("show", hasName);
+      if (!hasName) {
+        document.getElementById("pickupSection").classList.remove("open");
+        document.getElementById("pickupIcon").textContent = "＋";
+      }
+    }
+
+    function togglePickup() {
+      const section = document.getElementById("pickupSection");
+      const open = section.classList.toggle("open");
+      document.getElementById("pickupIcon").textContent = open ? "－" : "＋";
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      renderPage(DEFAULT_DATA);
+      loadStatus();
+      loadRoster();
+    });
 
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
@@ -772,13 +1213,11 @@
 
       if (names.length === 0) {
         showMessage("請至少輸入一個姓名。", true);
-        goToStep(1);
         return;
       }
 
       if (!selectedPickup) {
         showMessage("請選擇上車地點。", true);
-        goToStep(2);
         return;
       }
 
@@ -801,7 +1240,7 @@
           );
           form.reset();
           clearPickupSelection();
-          goToStep(1);
+          updateRevealState();
           return;
         }
 
@@ -829,8 +1268,9 @@
 
           form.reset();
           clearPickupSelection();
-          goToStep(1);
+          updateRevealState();
           loadStatus();
+          loadRoster();
         } else if (response.status === "full") {
           showMessage(
             `${escapeHtml(response.pickup)} 名額不足。<br>
@@ -838,7 +1278,6 @@
              本次報名：${response.requested} 人`,
             true
           );
-          goToStep(2);
           loadStatus();
         } else if (response.status === "closed") {
           showMessage("目前報名尚未開放或已關閉。", true);
@@ -850,79 +1289,165 @@
         showMessage("送出失敗，請確認 Apps Script 網址是否正確，或稍後再試。", true);
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = "確認送出報名";
+        submitBtn.textContent = "送出報名";
       }
     });
 
-    function goStep2() {
-      const names = getCurrentNames();
+    let rosterData = [];
+    let busInfoData = {};
 
-      if (names.length === 0) {
-        showMessage("請至少輸入一個姓名。", true);
-        return;
-      }
-
-      hideMessage();
-      goToStep(2);
+    function setMode(mode) {
+      const isSignup = mode === "signup";
+      document.getElementById("signupPanel").classList.toggle("show", isSignup);
+      document.getElementById("queryPanel").classList.toggle("show", !isSignup);
+      document.getElementById("tabSignup").classList.toggle("active", isSignup);
+      document.getElementById("tabQuery").classList.toggle("active", !isSignup);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    function goStep3() {
-      const names = getCurrentNames();
+    async function doQuery() {
+      const name = document.getElementById("queryName").value.trim();
+      const box = document.getElementById("queryResult");
 
-      if (names.length === 0) {
-        showMessage("請至少輸入一個姓名。", true);
-        goToStep(1);
+      if (!name) {
+        box.innerHTML = `<div class="qr-empty">請先輸入姓名。</div>`;
         return;
       }
 
-      if (!selectedPickup) {
-        showMessage("請選擇上車地點。", true);
-        return;
-      }
+      box.innerHTML = `<div class="qr-row">查詢中…</div>`;
 
-      hideMessage();
-      renderConfirm(names);
-      goToStep(3);
+      try {
+        const res = await jsonp(GOOGLE_SCRIPT_URL, { action: "query", name: name });
+        if (!res || !res.matches) {
+          box.innerHTML = `<div class="qr-empty">查詢功能尚未啟用，請先重新部署後台。</div>`;
+          return;
+        }
+        renderQueryResult(name, res.matches);
+      } catch (error) {
+        box.innerHTML = `<div class="qr-empty">查詢失敗，請稍後再試。</div>`;
+      }
     }
 
-    function goToStep(step) {
-      currentStep = step;
+    function renderQueryResult(name, matches) {
+      const box = document.getElementById("queryResult");
 
-      [1, 2, 3].forEach(function (num) {
-        document.getElementById("step" + num).classList.toggle("active", num === step);
+      if (!matches.length) {
+        box.innerHTML = `<div class="qr-empty">查無「${escapeHtml(name)}」的報名資料，請確認姓名是否正確。</div>`;
+        return;
+      }
 
-        const progress = document.getElementById("progress" + num);
-        progress.classList.toggle("active", num === step);
-        progress.classList.toggle("done", num < step);
+      const busNo = matches[0].busNo;
+      const busLabel = String(busNo).indexOf("自行") >= 0 ? "自行開車" : busNo;
+      box.innerHTML = `
+        <div class="qr-banner">${escapeHtml(name)}　在　<b>${escapeHtml(busLabel)}</b></div>
+        <div id="queryBusSheet"></div>
+      `;
+      renderBusSheet(busNo, document.getElementById("queryBusSheet"), name);
+    }
+
+    async function loadRoster() {
+      try {
+        const res = await jsonp(GOOGLE_SCRIPT_URL, { action: "roster" });
+        rosterData = (res && res.roster) ? res.roster : [];
+        busInfoData = buildBusInfo(res && res.buses ? res.buses : []);
+      } catch (error) {
+        rosterData = [];
+        busInfoData = {};
+      }
+      renderBusTabs();
+    }
+
+    function buildBusInfo(list) {
+      const map = {};
+      (list || []).forEach(function (b) {
+        if (b && b.busNo) map[b.busNo] = b;
       });
-
-      document.getElementById("barFill").style.width = step === 1 ? "33.33%" : step === 2 ? "66.66%" : "100%";
-      document.querySelector(".wizard-card").scrollIntoView({ behavior: "smooth", block: "start" });
+      return map;
     }
 
-    function renderConfirm(names) {
-      const pickup = findPickup(selectedPickup);
-      const isSelfDrive = pickup && pickup.selfDrive;
+    function toggleRoster() {
+      const body = document.getElementById("rosterBody");
+      const open = body.classList.toggle("show");
+      document.getElementById("rosterIcon").textContent = open ? "－" : "＋";
+    }
 
-      document.getElementById("confirmCount").textContent = `${names.length} 人`;
-      document.getElementById("confirmPickup").innerHTML = `
-        ${escapeHtml(selectedPickup)}<br>
-        <span style="font-size:17px;color:#56616b;">
-          ${pickup ? escapeHtml(pickup.departureTime || "") + "｜" + escapeHtml(pickup.busLabel || "") + "<br>" + escapeHtml(pickup.location || "") : ""}
-        </span>
+    function busSortKey(busNo) {
+      const text = String(busNo || "");
+      if (text.indexOf("自行") >= 0) return 9999;
+      const match = text.match(/\d+/);
+      return match ? Number(match[0]) : 9998;
+    }
+
+    function renderBusTabs() {
+      const tabs = document.getElementById("busTabs");
+      const list = document.getElementById("rosterList");
+
+      if (!rosterData.length) {
+        tabs.innerHTML = "";
+        list.innerHTML = `<div class="roster-empty">目前尚無名單（或後台尚未啟用查詢功能）。</div>`;
+        return;
+      }
+
+      const buses = [];
+      rosterData.forEach(function (r) {
+        if (buses.indexOf(r.busNo) < 0) buses.push(r.busNo);
+      });
+      buses.sort(function (a, b) { return busSortKey(a) - busSortKey(b); });
+
+      tabs.innerHTML = buses.map(function (bus) {
+        return `<button type="button" class="bus-tab" data-bus="${escapeHtml(bus)}" onclick="selectBus(this.dataset.bus)">${escapeHtml(bus)}</button>`;
+      }).join("");
+
+      list.innerHTML = `<div class="roster-empty">請點選上方車次，查看該車名單。</div>`;
+    }
+
+    function selectBus(bus) {
+      document.querySelectorAll(".bus-tab").forEach(function (tab) {
+        tab.classList.toggle("active", tab.dataset.bus === bus);
+      });
+      renderBusSheet(bus, document.getElementById("rosterList"), "");
+    }
+
+    function renderBusSheet(busNo, container, highlightName) {
+      if (!container) return;
+
+      const people = rosterData
+        .filter(function (r) { return r.busNo === busNo; })
+        .sort(function (a, b) { return (Number(a.seatNo) || 0) - (Number(b.seatNo) || 0); });
+
+      if (!people.length) {
+        container.innerHTML = `<div class="roster-empty">這個車次目前沒有名單。</div>`;
+        return;
+      }
+
+      const isSelf = String(busNo).indexOf("自行") >= 0;
+      const info = busInfoData[busNo] || {};
+      const pickupName = people[0].pickup;
+      const pickups = latestData.pickups || DEFAULT_DATA.pickups;
+      const pickup = pickups.find(function (p) { return p.name === pickupName; }) || {};
+
+      const seats = people.map(function (p, i) {
+        const no = isSelf ? "" : (Number(p.seatNo) || (i + 1));
+        const cls = (highlightName && p.name === highlightName) ? "bs-seat me" : "bs-seat";
+        return `<div class="${cls}">${isSelf ? "" : `<span class="bs-no">${no}</span>`}${escapeHtml(p.name)}</div>`;
+      }).join("");
+
+      const metaRows = isSelf ? "" : `
+        <div class="bs-meta"><span>車長：${escapeHtml(info.captain || "—")}</span><span>副車長：${escapeHtml(info.viceCaptain || "—")}</span></div>
+        <div class="bs-meta"><span>車號：${escapeHtml(info.plate || "—")}</span><span>司機：${escapeHtml(info.driver || "—")}</span><span>電話：${escapeHtml(info.driverPhone || "—")}</span></div>
       `;
 
-      const activity = latestData.activity || DEFAULT_DATA.activity;
-
-      document.getElementById("confirmFee").textContent = isSelfDrive
-        ? `自行開車：大人 $${activity.selfDriveAdultFee || "800"}｜小孩 $${activity.selfDriveChildFee || "600"}`
-        : `遊覽車：大人 $${activity.busAdultFee || "1100"}｜小孩 $${activity.busChildFee || "900"}`;
-
-      document.getElementById("confirmNames").innerHTML = names
-        .map(function (name) {
-          return `<li>${escapeHtml(name)}</li>`;
-        })
-        .join("");
+      container.innerHTML = `
+        <div class="bus-sheet">
+          <div class="bs-head">
+            <span class="bs-bus">${escapeHtml(isSelf ? "自行開車" : busNo)}</span>
+            <span class="bs-count">共 ${people.length} 人</span>
+          </div>
+          <div class="bs-line"><b>出發：</b>${escapeHtml(pickup.departureTime || "")}　${escapeHtml(pickupName)}${pickup.location ? "（" + escapeHtml(pickup.location) + "）" : ""}</div>
+          ${metaRows}
+          <div class="bs-grid">${seats}</div>
+        </div>
+      `;
     }
 
     async function loadStatus() {
@@ -951,7 +1476,7 @@
       const activity = data.activity || DEFAULT_DATA.activity;
 
       document.getElementById("activityTitle").textContent = activity.title || DEFAULT_DATA.activity.title;
-      document.getElementById("dateBadge").textContent = activity.date || "2026 / 11 / 8";
+      document.getElementById("dateBadge").textContent = "活動時間：" + (activity.date || "2026.11.8 星期日");
       document.getElementById("activitySubtitle").textContent = activity.subtitle || DEFAULT_DATA.activity.subtitle;
 
       document.getElementById("busFee").textContent =
@@ -961,12 +1486,13 @@
         `大人 $${activity.selfDriveAdultFee || "800"}｜小孩 $${activity.selfDriveChildFee || "600"}`;
 
       const statusPill = document.getElementById("statusPill");
+      const statusText = document.getElementById("statusText");
       if ((activity.registrationStatus || "開放") === "開放") {
-        statusPill.textContent = "報名開放中";
+        statusText.textContent = "報名開放中";
         statusPill.classList.remove("closed");
         submitBtn.disabled = false;
       } else {
-        statusPill.textContent = "目前尚未開放報名";
+        statusText.textContent = "報名已關閉";
         statusPill.classList.add("closed");
         submitBtn.disabled = true;
       }
@@ -980,14 +1506,48 @@
 
     function renderItinerary(items) {
       const container = document.getElementById("itineraryList");
+      const activity = latestData.activity || DEFAULT_DATA.activity;
       container.innerHTML = items.map(function (item) {
+        const content = item.content || "";
+        const address = itineraryAddress(content, activity);
+        const addressHtml = address
+          ? `<div class="place-addr">${escapeHtml(address)}</div>`
+          : "";
         return `
           <div class="route-item">
-            <div class="time">${escapeHtml(item.time || "")}</div>
-            <div class="place">${escapeHtml(item.content || "")}</div>
+            <div class="time">${escapeHtml(formatTime(item.time))}</div>
+            <div class="place">${escapeHtml(content)}${addressHtml}</div>
           </div>
         `;
       }).join("");
+    }
+
+    function itineraryAddress(content, activity) {
+      const d = DEFAULT_DATA.activity;
+      if (content.indexOf("西岐城") >= 0) return activity.xiqichengAddress || d.xiqichengAddress || "";
+      if (content.indexOf("西方道堂") >= 0) return activity.xifangAddress || d.xifangAddress || "";
+      if (content.indexOf("新和喜宴") >= 0 || content.indexOf("午餐") >= 0) {
+        return stripVenuePrefix_(activity.lunchAddress || d.lunchAddress || "");
+      }
+      return "";
+    }
+
+    function stripVenuePrefix_(text) {
+      const idx = String(text).indexOf("－");
+      return idx >= 0 ? text.slice(idx + 1).trim() : text;
+    }
+
+    function formatTime(value) {
+      if (value === null || value === undefined || value === "") return "";
+      const text = String(value).trim();
+      if (/^\d{1,2}:\d{2}/.test(text)) return text;
+      const date = new Date(text);
+      if (!isNaN(date.getTime())) {
+        const hh = String(date.getHours()).padStart(2, "0");
+        const mm = String(date.getMinutes()).padStart(2, "0");
+        return `${hh}:${mm}`;
+      }
+      return text;
     }
 
     function renderPickups(pickups) {
