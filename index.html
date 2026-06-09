@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 西岐城西方道堂之旅報名</title>
+  <style>
+    :root {
+      --main: #0f80ad;
+      --main-dark: #0a6388;
+      --gold: #ffcc4d;
+      --cream: #fffaf4;
+      --paper: #fffefb;
+      --blue-soft: #eef8ff;
+      --blue-line: #c9e8f8;
+      --orange-soft: #fff4e8;
+      --orange-line: #ffd9b8;
+      --pink-soft: #fff3f4;
+      --pink-line: #ffd5da;
+      --green-soft: #edf9f0;
+      --green-line: #cbead1;
+      --purple-soft: #f5f1ff;
+      --purple-line: #dfd4ff;
+      --gray-soft: #f6f7f8;
+      --gray-line: #e0e4e8;
+      --text: #23303a;
+      --muted: #56616b;
+      --shadow: 0 14px 36px rgba(15, 128, 173, 0.14);
+      --success: #e8f9ee;
+      --success-text: #1d6b3b;
+      --error: #fff1f1;
+      --error-text: #9b2c2c;
+      --selected: #fff4c2;
+      --selected-line: #ffb800;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", "Microsoft JhengHei", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 8% 8%, rgba(255, 204, 77, 0.24), transparent 24%),
+        radial-gradient(circle at 90% 12%, rgba(15, 128, 173, 0.18), transparent 24%),
+        linear-gradient(180deg, #fffdf8 0%, #fff8ed 100%);
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 34px;
+      background:
+        linear-gradient(135deg, rgba(15,128,173,0.96), rgba(41,159,193,0.92)),
+        #0f80ad;
+      color: white;
+      padding: 28px 22px 26px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      z-index: 0;
+    }
+
+    .hero::before {
+      width: 300px;
+      height: 300px;
+      right: -120px;
+      top: -80px;
+    }
+
+    .hero::after {
+      width: 240px;
+      height: 240px;
+      left: -80px;
+      bottom: -120px;
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--gold);
+      color: #513400;
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 18px;
+      font-weight: 900;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 38px;
+      line-height: 1.18;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      margin: 12px 0 10px;
+      font-size: 20px;
+      line-height: 1.6;
+      color: #eefaff;
+      font-weight: 700;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 6px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.18);
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.28);
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .status-pill.closed {
+      background: rgba(255, 219, 219, 0.26);
+      color: #fff2f2;
+    }
+
+    .top-note-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .top-note {
+      background: rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 20px;
+      padding: 14px;
+      backdrop-filter: blur(8px);
+    }
+
+    .top-note b {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 4px;
+      color: #ffffff;
+    }
+
+    .top-note span {
+      display: block;
+      font-size: 16px;
+      line-height: 1.45;
+      color: #eefaff;
+      font-weight: 700;
+    }
+
+    .fee-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin: 0 0 18px;
+    }
+
+    .fee-card {
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      background: var(--orange-soft);
+      border: 3px solid var(--orange-line);
+    }
+
+    .fee-card.self {
+      background: var(--pink-soft);
+      border-color: var(--pink-line);
+    }
+
+    .fee-top {
+      margin-bottom: 8px;
+      font-weight: 900;
+      font-size: 22px;
+      color: #7a4b00;
+    }
+
+    .fee-card.self .fee-top { color: #934857; }
+
+    .fee-price {
+      font-size: 22px;
+      line-height: 1.6;
+      font-weight: 900;
+      color: #374151;
+    }
+
+    .accordion {
+      margin-bottom: 18px;
+      border: 3px solid #ffd978;
+      border-radius: 22px;
+      overflow: hidden;
+      background: #fffaf0;
+      box-shadow: var(--shadow);
+    }
+
+    .accordion > button {
+      width: 100%;
+      margin: 0;
+      border: 0;
+      background: #ffcc4d;
+      color: #2a2a2a;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 24px;
+      font-weight: 900;
+      padding: 18px;
+      cursor: pointer;
+    }
+
+    .accordion-content {
+      display: none;
+      padding: 16px;
+    }
+
+    .accordion.open .accordion-content { display: block; }
+
+    .route-item {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 10px;
+      background: #ffffff;
+      border: 3px solid #f1e2bd;
+      border-radius: 16px;
+      padding: 13px;
+      margin-bottom: 10px;
+    }
+
+    .time {
+      color: #125a78;
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .place {
+      font-size: 19px;
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
+    .wizard-card {
+      background: var(--paper);
+      border-radius: 30px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 2px solid #f4f0e8;
+      margin-bottom: 18px;
+    }
+
+    .progress-wrap {
+      background: var(--gray-soft);
+      border: 2px solid var(--gray-line);
+      border-radius: 24px;
+      padding: 14px;
+      margin-bottom: 20px;
+    }
+
+    .progress-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .progress-step {
+      border-radius: 18px;
+      padding: 12px 8px;
+      text-align: center;
+      background: #ffffff;
+      border: 3px solid #e5e9ec;
+      color: #77818a;
+      font-size: 16px;
+      font-weight: 900;
+      line-height: 1.35;
+    }
+
+    .progress-step.active {
+      background: var(--selected);
+      border-color: var(--selected-line);
+      color: #6b4a00;
+    }
+
+    .progress-step.done {
+      background: var(--green-soft);
+      border-color: var(--green-line);
+      color: #1d6b3b;
+    }
+
+    .bar {
+      height: 12px;
+      background: #e5e9ec;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      width: 33.33%;
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold), var(--main));
+      border-radius: 999px;
+      transition: width .25s ease;
+    }
+
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    .step-title {
+      margin: 0 0 8px;
+      font-size: 32px;
+      color: #125a78;
+      font-weight: 900;
+    }
+
+    .step-sub {
+      margin: 0 0 18px;
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    label.section-label {
+      display: block;
+      font-size: 24px;
+      color: #1f2933;
+      font-weight: 900;
+      margin: 16px 0 8px;
+    }
+
+    .hint {
+      font-size: 18px;
+      line-height: 1.5;
+      color: var(--muted);
+      font-weight: 700;
+      margin: -2px 0 10px;
+      background: var(--blue-soft);
+      border: 2px solid var(--blue-line);
+      border-radius: 18px;
+      padding: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 210px;
+      padding: 16px;
+      border-radius: 18px;
+      border: 3px solid #b9d7e6;
+      font-size: 23px;
+      line-height: 1.55;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+      background: #fff;
+    }
+
+    textarea:focus {
+      border-color: var(--main);
+      box-shadow: 0 0 0 4px rgba(15, 128, 173, 0.16);
+    }
+
+    .pickup-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .pickup-btn {
+      min-height: 132px;
+      border: 4px solid var(--blue-line);
+      border-radius: 22px;
+      background: var(--blue-soft);
+      color: #17465c;
+      padding: 14px 10px;
+      font-size: 21px;
+      line-height: 1.25;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: none;
+      margin: 0;
+      text-align: center;
+    }
+
+    .pickup-btn small {
+      display: block;
+      margin-top: 6px;
+      font-size: 15px;
+      line-height: 1.35;
+      color: #52636c;
+      font-weight: 800;
+    }
+
+    .pickup-btn.active {
+      background: var(--selected);
+      border-color: var(--selected-line);
+      color: #6b4a00;
+      transform: translateY(-1px);
+    }
+
+    .pickup-btn.full { opacity: 0.55; }
+
+    .confirm-box {
+      border-radius: 24px;
+      padding: 18px;
+      background: var(--blue-soft);
+      border: 3px solid var(--blue-line);
+      margin-bottom: 14px;
+    }
+
+    .confirm-box h3 {
+      margin: 0 0 10px;
+      font-size: 24px;
+      color: #125a78;
+    }
+
+    .confirm-row {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px dashed #b5d4e3;
+      font-size: 20px;
+      line-height: 1.5;
+      font-weight: 800;
+    }
+
+    .confirm-row:last-child { border-bottom: 0; }
+
+    .confirm-label { color: #52636c; }
+    .confirm-value { color: #24313b; }
+
+    .name-list {
+      margin: 0;
+      padding-left: 1.3em;
+      font-size: 20px;
+      line-height: 1.7;
+      font-weight: 800;
+    }
+
+    .actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    .actions.single {
+      grid-template-columns: 1fr;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 19px 14px;
+      border: none;
+      border-radius: 22px;
+      font-size: 25px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 10px 20px rgba(15, 128, 173, 0.16);
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, var(--main), var(--main-dark));
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: #125a78;
+      border: 3px solid var(--blue-line);
+      box-shadow: none;
+    }
+
+    .btn:disabled {
+      background: #aaa;
+      color: white;
+      cursor: not-allowed;
+      box-shadow: none;
+      border: none;
+    }
+
+    .notice {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 18px;
+      background: var(--green-soft);
+      border: 2px solid var(--green-line);
+      color: #3a5f42;
+      font-size: 17px;
+      line-height: 1.7;
+      font-weight: 700;
+      white-space: pre-line;
+    }
+
+    .result {
+      display: none;
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 18px;
+      font-size: 20px;
+      line-height: 1.7;
+      background: var(--success);
+      color: var(--success-text);
+      font-weight: 800;
+    }
+
+    .result.error {
+      background: var(--error);
+      color: var(--error-text);
+    }
+
+    .footer {
+      text-align: center;
+      color: #777;
+      font-size: 14px;
+      margin: 18px 0 6px;
+    }
+
+    @media (max-width: 760px) {
+      h1 { font-size: 34px; }
+      .subtitle { font-size: 19px; }
+      .fee-grid, .top-note-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .progress-steps {
+        grid-template-columns: 1fr;
+      }
+
+      .progress-step {
+        text-align: left;
+        padding-left: 14px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page { padding: 12px; }
+      .hero, .wizard-card, .fee-card { border-radius: 22px; }
+      .pickup-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+      .pickup-btn {
+        min-height: 120px;
+        font-size: 19px;
+      }
+      .pickup-btn small { font-size: 13px; }
+      textarea { font-size: 21px; }
+      .actions {
+        grid-template-columns: 1fr;
+      }
+      .confirm-row {
+        grid-template-columns: 1fr;
+        gap: 2px;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .pickup-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="container">
+
+      <section class="hero">
+        <div class="hero-copy">
+          <div id="dateBadge" class="badge">2026 / 11 / 8</div>
+          <h1 id="activityTitle">2026 屏東西岐城、西方道堂之旅</h1>
+          <p id="activitySubtitle" class="subtitle">請輸入姓名並選擇上車地點。可以一次報名多人，一行一個姓名。</p>
+          <div id="statusPill" class="status-pill">報名開放中</div>
+
+          <div class="top-note-grid">
+            <div class="top-note">
+              <b>步驟 1</b>
+              <span>輸入姓名，一行一個人</span>
+            </div>
+            <div class="top-note">
+              <b>步驟 2</b>
+              <span>選擇上車地點</span>
+            </div>
+            <div class="top-note">
+              <b>步驟 3</b>
+              <span>確認資料後送出</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="fee-grid">
+        <div class="fee-card">
+          <div class="fee-top">遊覽車費用</div>
+          <div id="busFee" class="fee-price">大人 $1100｜小孩 $900</div>
+        </div>
+        <div class="fee-card self">
+          <div class="fee-top">屏東自行開車</div>
+          <div id="selfDriveFee" class="fee-price">大人 $800｜小孩 $600</div>
+        </div>
+      </section>
+
+      <section id="itineraryBox" class="accordion">
+        <button type="button" onclick="toggleAccordion('itineraryBox','itineraryIcon')">
+          <span>查看行程內容</span>
+          <span id="itineraryIcon">＋</span>
+        </button>
+        <div id="itineraryList" class="accordion-content">
+          <div class="route-item"><div class="time">08:00</div><div class="place">各上車地點集合出發</div></div>
+        </div>
+      </section>
+
+      <section class="wizard-card">
+        <div class="progress-wrap">
+          <div class="progress-steps">
+            <div id="progress1" class="progress-step active">1. 填寫姓名</div>
+            <div id="progress2" class="progress-step">2. 選擇上車地點</div>
+            <div id="progress3" class="progress-step">3. 確認送出</div>
+          </div>
+          <div class="bar">
+            <div id="barFill" class="bar-fill"></div>
+          </div>
+        </div>
+
+        <form id="signupForm">
+          <section id="step1" class="step-panel active">
+            <h2 class="step-title">第 1 步：填寫姓名</h2>
+            <p class="step-sub">可以一次輸入多位報名者，一行一個姓名，系統會自動拆成一人一筆資料。</p>
+
+            <label class="section-label" for="names">報名姓名</label>
+            <div class="hint">
+              範例：<br>
+              呂佩恩<br>
+              呂元訓<br>
+              李秀鳳
+            </div>
+            <textarea id="names" name="names" placeholder="請在這裡輸入姓名&#10;一行一個人"></textarea>
+
+            <div class="actions single">
+              <button type="button" class="btn btn-primary" onclick="goStep2()">下一步：選擇上車地點</button>
+            </div>
+          </section>
+
+          <section id="step2" class="step-panel">
+            <h2 class="step-title">第 2 步：選擇上車地點</h2>
+            <p class="step-sub">請點選一個上車地點。多人報名會使用同一個上車地點。</p>
+
+            <div id="pickupGrid" class="pickup-grid"></div>
+
+            <div class="actions">
+              <button type="button" class="btn btn-secondary" onclick="goToStep(1)">上一步</button>
+              <button type="button" class="btn btn-primary" onclick="goStep3()">下一步：確認資料</button>
+            </div>
+          </section>
+
+          <section id="step3" class="step-panel">
+            <h2 class="step-title">第 3 步：確認送出</h2>
+            <p class="step-sub">請確認姓名與上車地點，沒問題再送出。</p>
+
+            <div class="confirm-box">
+              <h3>報名確認</h3>
+              <div class="confirm-row">
+                <div class="confirm-label">報名人數</div>
+                <div id="confirmCount" class="confirm-value">0 人</div>
+              </div>
+              <div class="confirm-row">
+                <div class="confirm-label">上車地點</div>
+                <div id="confirmPickup" class="confirm-value">尚未選擇</div>
+              </div>
+              <div class="confirm-row">
+                <div class="confirm-label">費用提醒</div>
+                <div id="confirmFee" class="confirm-value">請依實際大人／小孩人數計算</div>
+              </div>
+              <div class="confirm-row">
+                <div class="confirm-label">姓名名單</div>
+                <div class="confirm-value">
+                  <ol id="confirmNames" class="name-list"></ol>
+                </div>
+              </div>
+            </div>
+
+            <div class="actions">
+              <button type="button" class="btn btn-secondary" onclick="goToStep(2)">上一步</button>
+              <button id="submitBtn" class="btn btn-primary" type="submit">確認送出報名</button>
+            </div>
+          </section>
+        </form>
+
+        <div id="result" class="result"></div>
+
+        <div id="noticeBox" class="notice">
+          費用包含午餐、水2瓶、下午茶、香火錢、車資。
+          請著輕便服裝、運動鞋方便靈動參拜。
+        </div>
+      </section>
+
+      <div class="footer">西岐城活動報名系統</div>
+    </div>
+  </main>
+
+  <script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzVoaHKG4EqVODn_W7TX2Cb3KGbQKJY-5dgL4-r35g3eBGBlqNJELBVFEnd0ztxc5Yx/exec";
+
+    const DEFAULT_DATA = {
+      status: "success",
+      activity: {
+        title: "2026 屏東西岐城、西方道堂之旅",
+        date: "2026.11.8 星期日",
+        subtitle: "請輸入姓名並選擇上車地點。可以一次報名多人，一行一個姓名。",
+        registrationStatus: "開放",
+        busAdultFee: "1100",
+        busChildFee: "900",
+        selfDriveAdultFee: "800",
+        selfDriveChildFee: "600",
+        feeIncludes: "費用包含午餐、水2瓶、下午茶、香火錢、車資。",
+        notes: "請著輕便服裝、運動鞋方便靈動參拜。"
+      },
+      itinerary: [
+        { time: "08:00", content: "高雄道場＋高雄文化中心＋台南永康出發" },
+        { time: "09:00", content: "屏東西岐城" },
+        { time: "12:30", content: "午餐：新和喜宴會館" },
+        { time: "14:00", content: "西方道堂" },
+        { time: "17:30", content: "快樂返家" }
+      ],
+      pickups: [
+        { name: "高雄文化中心", departureTime: "早上8:00", busLabel: "1.2.6.7.8.9車", location: "五福路大門口", remaining: 258, capacity: 258, selfDrive: false },
+        { name: "高雄道場三多", departureTime: "早上8:00", busLabel: "3.12車", location: "三多路全家便利商店前", remaining: 86, capacity: 86, selfDrive: false },
+        { name: "高雄道場85大樓", departureTime: "早上8:00", busLabel: "5.10車", location: "三多路85大樓門口", remaining: 86, capacity: 86, selfDrive: false },
+        { name: "台南永康", departureTime: "早上8:00", busLabel: "11車", location: "合眾汽車台南營業所（億峰家俱對面）", remaining: 43, capacity: 43, selfDrive: false },
+        { name: "屏東自行開車", departureTime: "自行前往", busLabel: "自行開車", location: "不占遊覽車座位", remaining: "不限", capacity: "不限", selfDrive: true }
+      ]
+    };
+
+    let selectedPickup = "";
+    let latestData = DEFAULT_DATA;
+    let currentStep = 1;
+
+    const form = document.getElementById("signupForm");
+    const resultBox = document.getElementById("result");
+    const submitBtn = document.getElementById("submitBtn");
+
+    document.addEventListener("DOMContentLoaded", loadStatus);
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const names = getCurrentNames();
+
+      if (names.length === 0) {
+        showMessage("請至少輸入一個姓名。", true);
+        goToStep(1);
+        return;
+      }
+
+      if (!selectedPickup) {
+        showMessage("請選擇上車地點。", true);
+        goToStep(2);
+        return;
+      }
+
+      if (latestData.activity && latestData.activity.registrationStatus !== "開放") {
+        showMessage("目前尚未開放報名，請聯絡工作人員。", true);
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = "送出中...";
+
+      try {
+        if (!GOOGLE_SCRIPT_URL) {
+          showMessage(
+            `測試報名成功：<br>
+             上車地點：${escapeHtml(selectedPickup)}<br>
+             報名人數：${names.length} 人<br>
+             名單：<br>${names.map(escapeHtml).join("<br>")}<br><br>
+             目前尚未串接 Google Sheet，所以資料不會真的寫入後台。`
+          );
+          form.reset();
+          clearPickupSelection();
+          goToStep(1);
+          return;
+        }
+
+        const response = await jsonp(GOOGLE_SCRIPT_URL, {
+          action: "submit",
+          names: names.join("\n"),
+          pickup: selectedPickup
+        });
+
+        if (response.status === "success") {
+          const listHtml = response.records.map(function (record) {
+            const assignText = record.selfDrive
+              ? "自行開車"
+              : `${escapeHtml(record.busNo)}／第 ${record.seatNo} 位`;
+
+            return `${escapeHtml(record.name)}：${assignText}（${escapeHtml(record.registrationNo)}）`;
+          }).join("<br>");
+
+          showMessage(
+            `報名成功！<br>
+             上車地點：${escapeHtml(response.pickup)}<br>
+             報名人數：${response.count} 人<br><br>
+             ${listHtml}`
+          );
+
+          form.reset();
+          clearPickupSelection();
+          goToStep(1);
+          loadStatus();
+        } else if (response.status === "full") {
+          showMessage(
+            `${escapeHtml(response.pickup)} 名額不足。<br>
+             目前剩餘：${response.remaining} 位<br>
+             本次報名：${response.requested} 人`,
+            true
+          );
+          goToStep(2);
+          loadStatus();
+        } else if (response.status === "closed") {
+          showMessage("目前報名尚未開放或已關閉。", true);
+          loadStatus();
+        } else {
+          showMessage(response.message || "送出失敗，請稍後再試。", true);
+        }
+      } catch (error) {
+        showMessage("送出失敗，請確認 Apps Script 網址是否正確，或稍後再試。", true);
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "確認送出報名";
+      }
+    });
+
+    function goStep2() {
+      const names = getCurrentNames();
+
+      if (names.length === 0) {
+        showMessage("請至少輸入一個姓名。", true);
+        return;
+      }
+
+      hideMessage();
+      goToStep(2);
+    }
+
+    function goStep3() {
+      const names = getCurrentNames();
+
+      if (names.length === 0) {
+        showMessage("請至少輸入一個姓名。", true);
+        goToStep(1);
+        return;
+      }
+
+      if (!selectedPickup) {
+        showMessage("請選擇上車地點。", true);
+        return;
+      }
+
+      hideMessage();
+      renderConfirm(names);
+      goToStep(3);
+    }
+
+    function goToStep(step) {
+      currentStep = step;
+
+      [1, 2, 3].forEach(function (num) {
+        document.getElementById("step" + num).classList.toggle("active", num === step);
+
+        const progress = document.getElementById("progress" + num);
+        progress.classList.toggle("active", num === step);
+        progress.classList.toggle("done", num < step);
+      });
+
+      document.getElementById("barFill").style.width = step === 1 ? "33.33%" : step === 2 ? "66.66%" : "100%";
+      document.querySelector(".wizard-card").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function renderConfirm(names) {
+      const pickup = findPickup(selectedPickup);
+      const isSelfDrive = pickup && pickup.selfDrive;
+
+      document.getElementById("confirmCount").textContent = `${names.length} 人`;
+      document.getElementById("confirmPickup").innerHTML = `
+        ${escapeHtml(selectedPickup)}<br>
+        <span style="font-size:17px;color:#56616b;">
+          ${pickup ? escapeHtml(pickup.departureTime || "") + "｜" + escapeHtml(pickup.busLabel || "") + "<br>" + escapeHtml(pickup.location || "") : ""}
+        </span>
+      `;
+
+      const activity = latestData.activity || DEFAULT_DATA.activity;
+
+      document.getElementById("confirmFee").textContent = isSelfDrive
+        ? `自行開車：大人 $${activity.selfDriveAdultFee || "800"}｜小孩 $${activity.selfDriveChildFee || "600"}`
+        : `遊覽車：大人 $${activity.busAdultFee || "1100"}｜小孩 $${activity.busChildFee || "900"}`;
+
+      document.getElementById("confirmNames").innerHTML = names
+        .map(function (name) {
+          return `<li>${escapeHtml(name)}</li>`;
+        })
+        .join("");
+    }
+
+    async function loadStatus() {
+      if (!GOOGLE_SCRIPT_URL) {
+        latestData = DEFAULT_DATA;
+        renderPage(DEFAULT_DATA);
+        return;
+      }
+
+      try {
+        const response = await jsonp(GOOGLE_SCRIPT_URL, { action: "status" });
+        if (response.status === "success") {
+          latestData = response;
+          renderPage(response);
+        } else {
+          latestData = DEFAULT_DATA;
+          renderPage(DEFAULT_DATA);
+        }
+      } catch (error) {
+        latestData = DEFAULT_DATA;
+        renderPage(DEFAULT_DATA);
+      }
+    }
+
+    function renderPage(data) {
+      const activity = data.activity || DEFAULT_DATA.activity;
+
+      document.getElementById("activityTitle").textContent = activity.title || DEFAULT_DATA.activity.title;
+      document.getElementById("dateBadge").textContent = activity.date || "2026 / 11 / 8";
+      document.getElementById("activitySubtitle").textContent = activity.subtitle || DEFAULT_DATA.activity.subtitle;
+
+      document.getElementById("busFee").textContent =
+        `大人 $${activity.busAdultFee || "1100"}｜小孩 $${activity.busChildFee || "900"}`;
+
+      document.getElementById("selfDriveFee").textContent =
+        `大人 $${activity.selfDriveAdultFee || "800"}｜小孩 $${activity.selfDriveChildFee || "600"}`;
+
+      const statusPill = document.getElementById("statusPill");
+      if ((activity.registrationStatus || "開放") === "開放") {
+        statusPill.textContent = "報名開放中";
+        statusPill.classList.remove("closed");
+        submitBtn.disabled = false;
+      } else {
+        statusPill.textContent = "目前尚未開放報名";
+        statusPill.classList.add("closed");
+        submitBtn.disabled = true;
+      }
+
+      document.getElementById("noticeBox").textContent =
+        `${activity.feeIncludes || ""}\n${activity.notes || ""}`;
+
+      renderItinerary(data.itinerary || DEFAULT_DATA.itinerary);
+      renderPickups(data.pickups || DEFAULT_DATA.pickups);
+    }
+
+    function renderItinerary(items) {
+      const container = document.getElementById("itineraryList");
+      container.innerHTML = items.map(function (item) {
+        return `
+          <div class="route-item">
+            <div class="time">${escapeHtml(item.time || "")}</div>
+            <div class="place">${escapeHtml(item.content || "")}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderPickups(pickups) {
+      const grid = document.getElementById("pickupGrid");
+      grid.innerHTML = "";
+
+      pickups.forEach(function (pickup) {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "pickup-btn";
+        btn.dataset.pickup = pickup.name;
+
+        const remainText = pickup.selfDrive
+          ? `已登記 ${pickup.used || 0} 人｜不限`
+          : `剩 ${pickup.remaining} / ${pickup.capacity} 位`;
+
+        btn.innerHTML = `
+          ${escapeHtml(pickup.name)}
+          <small>${escapeHtml(pickup.departureTime || "")}｜${escapeHtml(pickup.busLabel || "")}</small>
+          <small>${escapeHtml(pickup.location || "")}</small>
+          <small>${escapeHtml(remainText)}</small>
+        `;
+
+        if (!pickup.selfDrive && Number(pickup.remaining) <= 0) {
+          btn.classList.add("full");
+        }
+
+        if (pickup.name === selectedPickup) {
+          btn.classList.add("active");
+        }
+
+        btn.addEventListener("click", function () {
+          selectedPickup = pickup.name;
+          document.querySelectorAll(".pickup-btn").forEach(function (button) {
+            button.classList.remove("active");
+          });
+          btn.classList.add("active");
+          hideMessage();
+        });
+
+        grid.appendChild(btn);
+      });
+    }
+
+    function getCurrentNames() {
+      return splitNames(document.getElementById("names").value.trim());
+    }
+
+    function splitNames(text) {
+      return text
+        .split(/\r?\n/)
+        .map(function (name) { return name.trim(); })
+        .filter(function (name) { return name.length > 0; });
+    }
+
+    function findPickup(name) {
+      const pickups = latestData.pickups || DEFAULT_DATA.pickups;
+      return pickups.find(function (pickup) {
+        return pickup.name === name;
+      });
+    }
+
+    function clearPickupSelection() {
+      selectedPickup = "";
+      document.querySelectorAll(".pickup-btn").forEach(function (btn) {
+        btn.classList.remove("active");
+      });
+    }
+
+    function toggleAccordion(boxId, iconId) {
+      const box = document.getElementById(boxId);
+      const icon = document.getElementById(iconId);
+      box.classList.toggle("open");
+      icon.textContent = box.classList.contains("open") ? "－" : "＋";
+    }
+
+    function showMessage(message, isError = false) {
+      resultBox.innerHTML = message;
+      resultBox.className = isError ? "result error" : "result";
+      resultBox.style.display = "block";
+      resultBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function hideMessage() {
+      resultBox.style.display = "none";
+    }
+
+    function jsonp(url, params = {}) {
+      return new Promise((resolve, reject) => {
+        const callbackName = "jsonpCallback_" + Date.now() + "_" + Math.floor(Math.random() * 100000);
+        const script = document.createElement("script");
+        const query = new URLSearchParams({
+          ...params,
+          callback: callbackName
+        });
+
+        window[callbackName] = function (data) {
+          resolve(data);
+          cleanup();
+        };
+
+        script.onerror = function () {
+          reject(new Error("JSONP request failed"));
+          cleanup();
+        };
+
+        function cleanup() {
+          delete window[callbackName];
+          if (script.parentNode) script.parentNode.removeChild(script);
+        }
+
+        script.src = url + (url.includes("?") ? "&" : "?") + query.toString();
+        document.body.appendChild(script);
+      });
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
+</body>
+</html>
