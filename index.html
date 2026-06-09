@@ -328,6 +328,86 @@
     .reveal-block { display: none; }
     .reveal-block.show { display: block; }
 
+    .person-row {
+      display: flex;
+      gap: 8px;
+      align-items: stretch;
+      margin-bottom: 10px;
+    }
+
+    .person-name {
+      flex: 1;
+      min-width: 0;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 3px solid #b9d7e6;
+      font-size: 20px;
+      font-family: inherit;
+      outline: none;
+      background: #fff;
+    }
+
+    .person-name:focus {
+      border-color: var(--main);
+      box-shadow: 0 0 0 4px rgba(15, 128, 173, 0.16);
+    }
+
+    .person-name-label {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      font-size: 20px;
+      font-weight: 800;
+      color: #24313b;
+      background: #f6fbfe;
+      border: 2px solid var(--blue-line);
+      border-radius: 12px;
+    }
+
+    .identity-toggle { display: flex; flex: 0 0 auto; }
+
+    .id-btn {
+      border: 3px solid var(--blue-line);
+      background: #fff;
+      color: #17465c;
+      font-size: 17px;
+      font-weight: 900;
+      padding: 0 14px;
+      cursor: pointer;
+    }
+
+    .id-btn:first-child { border-radius: 14px 0 0 14px; border-right-width: 0; }
+    .id-btn:last-child { border-radius: 0 14px 14px 0; }
+
+    .id-btn.active {
+      background: var(--selected);
+      border-color: var(--selected-line);
+      color: #6b4a00;
+    }
+
+    .remove-person {
+      flex: 0 0 auto;
+      border: 3px solid var(--blue-line);
+      background: #fff;
+      color: #9b2c2c;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 900;
+      padding: 0 12px;
+      cursor: pointer;
+    }
+
+    .add-person-btn {
+      width: auto;
+      padding: 12px 18px;
+      font-size: 18px;
+      border-radius: 14px;
+      margin-top: 2px;
+      box-shadow: none;
+    }
+
     .pickup-toggle {
       width: 100%;
       display: flex;
@@ -1044,11 +1124,11 @@
             </button>
           </div>
 
-          <p id="activitySubtitle" class="subtitle">請輸入姓名並選擇上車地點。可以一次報名多人，一行一個姓名。</p>
+          <p id="activitySubtitle" class="subtitle">請先選擇車次，再填寫姓名。可以一次報名多人，一行一個姓名。</p>
 
           <div class="hero-steps">
             <b>操作順序</b>
-            <span>① 輸入姓名　→　② 選擇上車地點　→　③ 送出報名</span>
+            <span>① 選擇車次　→　② 填寫姓名　→　③ 確認身分　→　④ 送出報名</span>
           </div>
         </div>
       </section>
@@ -1088,17 +1168,16 @@
       <div id="signupPanel" class="mode-panel">
         <div class="col-card signup">
           <form id="signupForm">
-            <label class="section-label" for="names">① 報名姓名（一行一個人）</label>
-            <textarea id="names" name="names" placeholder="請輸入姓名，一行一個人&#10;例如：&#10;呂佩恩&#10;呂元訓&#10;李秀鳳"></textarea>
+            <label class="section-label">① 選擇車次</label>
+            <div id="busGrid" class="pickup-grid"></div>
 
-            <div id="afterNameBlock" class="reveal-block">
-              <button type="button" id="pickupToggle" class="pickup-toggle" onclick="togglePickup()">
-                <span>② 選擇上車地點</span>
-                <span id="pickupIcon">＋</span>
-              </button>
+            <div id="afterBusBlock" class="reveal-block">
+              <label class="section-label" for="names">② 報名姓名（一行一個人）</label>
+              <textarea id="names" name="names" placeholder="請輸入姓名，一行一個人&#10;例如：&#10;呂佩恩&#10;呂元訓&#10;李秀鳳"></textarea>
 
-              <div id="pickupSection" class="pickup-section">
-                <div id="pickupGrid" class="pickup-grid"></div>
+              <div id="identityBlock" class="reveal-block">
+                <label class="section-label">③ 確認身分（預設大人，小孩請點「小孩」）</label>
+                <div id="identityList"></div>
 
                 <div class="actions single">
                   <button id="submitBtn" class="btn btn-primary" type="submit">送出報名</button>
@@ -1146,7 +1225,7 @@
       activity: {
         title: "2026 屏東西岐城、西方道堂之旅",
         date: "2026.11.8 星期日",
-        subtitle: "請輸入姓名並選擇上車地點。可以一次報名多人，一行一個姓名。",
+        subtitle: "請先選擇車次，再填寫姓名。可以一次報名多人，一行一個姓名。",
         registrationStatus: "開放",
         busAdultFee: "1100",
         busChildFee: "900",
@@ -1171,33 +1250,69 @@
         { name: "高雄道場85大樓", departureTime: "早上8:00", busLabel: "5.10車", location: "三多路85大樓門口", remaining: 86, capacity: 86, selfDrive: false },
         { name: "台南永康", departureTime: "早上8:00", busLabel: "11車", location: "合眾汽車台南營業所（億峰家俱對面）", remaining: 43, capacity: 43, selfDrive: false },
         { name: "屏東自行開車", departureTime: "自行前往", busLabel: "自行開車", location: "不占遊覽車座位", remaining: "不限", capacity: "不限", selfDrive: true }
+      ],
+      busOptions: [
+        { busNo: "自行開車", captain: "", pickup: "屏東自行開車", departureTime: "自行前往", location: "不占遊覽車座位", selfDrive: true, remaining: "不限" }
       ]
     };
 
-    let selectedPickup = "";
+    let selectedBus = "";
     let latestData = DEFAULT_DATA;
     let currentStep = 1;
 
     const form = document.getElementById("signupForm");
     const resultBox = document.getElementById("result");
     const submitBtn = document.getElementById("submitBtn");
-    const afterNameBlock = document.getElementById("afterNameBlock");
+    const afterBusBlock = document.getElementById("afterBusBlock");
 
-    document.getElementById("names").addEventListener("input", updateRevealState);
-
+    // 選了車次才顯示「填姓名＋送出」
     function updateRevealState() {
-      const hasName = getCurrentNames().length > 0;
-      afterNameBlock.classList.toggle("show", hasName);
-      if (!hasName) {
-        document.getElementById("pickupSection").classList.remove("open");
-        document.getElementById("pickupIcon").textContent = "＋";
-      }
+      afterBusBlock.classList.toggle("show", !!selectedBus);
     }
 
-    function togglePickup() {
-      const section = document.getElementById("pickupSection");
-      const open = section.classList.toggle("open");
-      document.getElementById("pickupIcon").textContent = open ? "－" : "＋";
+    // 大人/小孩：先打名單，再依名單產生身分確認列（預設大人）
+    let identityChoices = {};
+    document.getElementById("names").addEventListener("input", rebuildIdentityList);
+
+    function rebuildIdentityList() {
+      const names = getCurrentNames();
+      const block = document.getElementById("identityBlock");
+      const list = document.getElementById("identityList");
+
+      if (!names.length) {
+        block.classList.remove("show");
+        list.innerHTML = "";
+        return;
+      }
+
+      block.classList.add("show");
+      list.innerHTML = names.map(function (name) {
+        const isChild = identityChoices[name] === "小孩";
+        return `
+          <div class="person-row">
+            <span class="person-name-label">${escapeHtml(name)}</span>
+            <div class="identity-toggle">
+              <button type="button" class="id-btn${isChild ? "" : " active"}" data-name="${escapeHtml(name)}" data-id="大人">大人</button>
+              <button type="button" class="id-btn${isChild ? " active" : ""}" data-name="${escapeHtml(name)}" data-id="小孩">小孩</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      list.querySelectorAll(".id-btn").forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          identityChoices[btn.dataset.name] = btn.dataset.id;
+          const toggle = btn.parentElement;
+          toggle.querySelectorAll(".id-btn").forEach(function (b) { b.classList.remove("active"); });
+          btn.classList.add("active");
+        });
+      });
+    }
+
+    function getCurrentPeople() {
+      return getCurrentNames().map(function (name) {
+        return { name: name, identity: identityChoices[name] === "小孩" ? "小孩" : "大人" };
+      });
     }
 
     document.addEventListener("DOMContentLoaded", function () {
@@ -1209,15 +1324,15 @@
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
 
-      const names = getCurrentNames();
+      const people = getCurrentPeople();
 
-      if (names.length === 0) {
+      if (people.length === 0) {
         showMessage("請至少輸入一個姓名。", true);
         return;
       }
 
-      if (!selectedPickup) {
-        showMessage("請選擇上車地點。", true);
+      if (!selectedBus) {
+        showMessage("請選擇車次。", true);
         return;
       }
 
@@ -1233,49 +1348,57 @@
         if (!GOOGLE_SCRIPT_URL) {
           showMessage(
             `測試報名成功：<br>
-             上車地點：${escapeHtml(selectedPickup)}<br>
-             報名人數：${names.length} 人<br>
-             名單：<br>${names.map(escapeHtml).join("<br>")}<br><br>
+             車次：${escapeHtml(selectedBus)}<br>
+             報名人數：${people.length} 人<br>
+             名單：<br>${people.map(function (p) { return escapeHtml(p.name) + "（" + escapeHtml(p.identity) + "）"; }).join("<br>")}<br><br>
              目前尚未串接 Google Sheet，所以資料不會真的寫入後台。`
           );
           form.reset();
-          clearPickupSelection();
+          identityChoices = {};
+          rebuildIdentityList();
+          clearBusSelection();
           updateRevealState();
           return;
         }
 
         const response = await jsonp(GOOGLE_SCRIPT_URL, {
           action: "submit",
-          names: names.join("\n"),
-          pickup: selectedPickup
+          people: JSON.stringify(people),
+          bus: selectedBus
         });
 
         if (response.status === "success") {
           const listHtml = response.records.map(function (record) {
-            const assignText = record.selfDrive
-              ? "自行開車"
-              : `${escapeHtml(record.busNo)}／第 ${record.seatNo} 位`;
-
-            return `${escapeHtml(record.name)}：${assignText}（${escapeHtml(record.registrationNo)}）`;
+            const assignText = record.selfDrive ? "自行開車" : escapeHtml(record.busNo);
+            const idText = record.identity ? `（${escapeHtml(record.identity)}）` : "";
+            return `${escapeHtml(record.name)}${idText}：${assignText}`;
           }).join("<br>");
+
+          const dupNote = (response.duplicates && response.duplicates.length)
+            ? `<br><br>⚠️ 提醒：「${response.duplicates.map(escapeHtml).join("、")}」之前已經報名過囉！這次又多登記了一筆，若不是重複請忽略，是重複的話請聯絡工作人員協助取消。`
+            : "";
 
           showMessage(
             `報名成功！<br>
+             車次：${escapeHtml(response.busNo || "")}<br>
              上車地點：${escapeHtml(response.pickup)}<br>
              報名人數：${response.count} 人<br><br>
-             ${listHtml}`
+             ${listHtml}${dupNote}`
           );
 
           form.reset();
-          clearPickupSelection();
+          identityChoices = {};
+          rebuildIdentityList();
+          clearBusSelection();
           updateRevealState();
           loadStatus();
           loadRoster();
         } else if (response.status === "full") {
           showMessage(
-            `${escapeHtml(response.pickup)} 名額不足。<br>
-             目前剩餘：${response.remaining} 位<br>
-             本次報名：${response.requested} 人`,
+            `${escapeHtml(response.busNo || "這台車")} 名額不足。<br>
+             目前可報名：${response.remaining} 位<br>
+             本次報名：${response.requested} 人<br>
+             請改選其他車次。`,
             true
           );
           loadStatus();
@@ -1295,6 +1418,7 @@
 
     let rosterData = [];
     let busInfoData = {};
+    let busOrder = [];
 
     function setMode(mode) {
       const isSignup = mode === "signup";
@@ -1349,10 +1473,13 @@
       try {
         const res = await jsonp(GOOGLE_SCRIPT_URL, { action: "roster" });
         rosterData = (res && res.roster) ? res.roster : [];
-        busInfoData = buildBusInfo(res && res.buses ? res.buses : []);
+        const buses = res && res.buses ? res.buses : [];
+        busInfoData = buildBusInfo(buses);
+        busOrder = buses.map(function (b) { return b.busNo; });
       } catch (error) {
         rosterData = [];
         busInfoData = {};
+        busOrder = [];
       }
       renderBusTabs();
     }
@@ -1392,7 +1519,13 @@
       rosterData.forEach(function (r) {
         if (buses.indexOf(r.busNo) < 0) buses.push(r.busNo);
       });
-      buses.sort(function (a, b) { return busSortKey(a) - busSortKey(b); });
+      buses.sort(function (a, b) {
+        const ia = busOrder.indexOf(a);
+        const ib = busOrder.indexOf(b);
+        const ka = ia < 0 ? 1000 + busSortKey(a) : ia;
+        const kb = ib < 0 ? 1000 + busSortKey(b) : ib;
+        return ka - kb;
+      });
 
       tabs.innerHTML = buses.map(function (bus) {
         return `<button type="button" class="bus-tab" data-bus="${escapeHtml(bus)}" onclick="selectBus(this.dataset.bus)">${escapeHtml(bus)}</button>`;
@@ -1429,7 +1562,7 @@
       const seats = people.map(function (p, i) {
         const no = isSelf ? "" : (Number(p.seatNo) || (i + 1));
         const cls = (highlightName && p.name === highlightName) ? "bs-seat me" : "bs-seat";
-        return `<div class="${cls}">${isSelf ? "" : `<span class="bs-no">${no}</span>`}${escapeHtml(p.name)}</div>`;
+        return `<div class="${cls}">${isSelf ? "" : `<span class="bs-no">${no}</span>`}${escapeHtml(p.name)}${p.identity === "小孩" ? "（小孩）" : ""}</div>`;
       }).join("");
 
       const metaRows = isSelf ? "" : `
@@ -1501,7 +1634,7 @@
         `${activity.feeIncludes || ""}\n${activity.notes || ""}`;
 
       renderItinerary(data.itinerary || DEFAULT_DATA.itinerary);
-      renderPickups(data.pickups || DEFAULT_DATA.pickups);
+      renderBusOptions(data.busOptions || DEFAULT_DATA.busOptions || []);
     }
 
     function renderItinerary(items) {
@@ -1550,41 +1683,55 @@
       return text;
     }
 
-    function renderPickups(pickups) {
-      const grid = document.getElementById("pickupGrid");
+    function renderBusOptions(options) {
+      const grid = document.getElementById("busGrid");
       grid.innerHTML = "";
 
-      pickups.forEach(function (pickup) {
+      if (!options || !options.length) {
+        grid.innerHTML = `<div class="roster-empty">目前還沒有開放的車次。請先在後台「車次資料」指定車長（並重新部署），有車長的車才會出現。</div>`;
+        return;
+      }
+
+      options.forEach(function (opt) {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "pickup-btn";
-        btn.dataset.pickup = pickup.name;
+        btn.dataset.bus = opt.busNo;
 
-        const remainText = pickup.selfDrive
-          ? `已登記 ${pickup.used || 0} 人｜不限`
-          : `剩 ${pickup.remaining} / ${pickup.capacity} 位`;
+        const isFull = !opt.selfDrive && Number(opt.remaining) <= 0;
+        const head = opt.selfDrive
+          ? "自行開車"
+          : `${escapeHtml(opt.busNo)}　${escapeHtml(opt.captain || "")}`;
+        const remainText = opt.selfDrive
+          ? "不限名額"
+          : (isFull ? "已額滿" : `尚可報名 ${opt.remaining} 位`);
 
         btn.innerHTML = `
-          ${escapeHtml(pickup.name)}
-          <small>${escapeHtml(pickup.departureTime || "")}｜${escapeHtml(pickup.busLabel || "")}</small>
-          <small>${escapeHtml(pickup.location || "")}</small>
+          ${head}
+          <small>${escapeHtml(opt.pickup || "")}</small>
+          <small>${escapeHtml(opt.departureTime || "")}</small>
           <small>${escapeHtml(remainText)}</small>
         `;
 
-        if (!pickup.selfDrive && Number(pickup.remaining) <= 0) {
+        if (isFull) {
           btn.classList.add("full");
         }
 
-        if (pickup.name === selectedPickup) {
+        if (opt.busNo === selectedBus) {
           btn.classList.add("active");
         }
 
         btn.addEventListener("click", function () {
-          selectedPickup = pickup.name;
+          if (isFull) {
+            showMessage("這台車已額滿，請改選其他車次。", true);
+            return;
+          }
+          selectedBus = opt.busNo;
           document.querySelectorAll(".pickup-btn").forEach(function (button) {
             button.classList.remove("active");
           });
           btn.classList.add("active");
+          updateRevealState();
           hideMessage();
         });
 
@@ -1603,15 +1750,8 @@
         .filter(function (name) { return name.length > 0; });
     }
 
-    function findPickup(name) {
-      const pickups = latestData.pickups || DEFAULT_DATA.pickups;
-      return pickups.find(function (pickup) {
-        return pickup.name === name;
-      });
-    }
-
-    function clearPickupSelection() {
-      selectedPickup = "";
+    function clearBusSelection() {
+      selectedBus = "";
       document.querySelectorAll(".pickup-btn").forEach(function (btn) {
         btn.classList.remove("active");
       });
