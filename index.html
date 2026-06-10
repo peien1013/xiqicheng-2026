@@ -1112,7 +1112,7 @@
       <section class="hero">
         <div id="statusPill" class="status-pill">
           <span class="live-dot"></span>
-          <span id="statusText">報名開放中</span>
+          <span id="statusText">報名狀態確認中…</span>
         </div>
         <div class="hero-copy">
           <h1 id="activityTitle">2026 屏東西岐城、西方道堂之旅</h1>
@@ -1226,7 +1226,7 @@
         title: "2026 屏東西岐城、西方道堂之旅",
         date: "2026.11.8 星期日",
         subtitle: "請先選擇車次，再填寫姓名。可以一次報名多人，一行一個姓名。",
-        registrationStatus: "開放",
+        registrationStatus: "報名狀態確認中…",
         busAdultFee: "1100",
         busChildFee: "900",
         selfDriveAdultFee: "800",
@@ -1620,12 +1620,14 @@
 
       const statusPill = document.getElementById("statusPill");
       const statusText = document.getElementById("statusText");
-      if ((activity.registrationStatus || "開放") === "開放") {
+      if ((activity.registrationStatus || "") === "開放") {
         statusText.textContent = "報名開放中";
         statusPill.classList.remove("closed");
         submitBtn.disabled = false;
       } else {
-        statusText.textContent = "報名已關閉";
+        let statusLabel = activity.registrationStatus || "報名狀態確認中…";
+        if (statusLabel === "關閉") statusLabel = "報名已關閉";
+        statusText.textContent = statusLabel;
         statusPill.classList.add("closed");
         submitBtn.disabled = true;
       }
