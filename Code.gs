@@ -52,7 +52,9 @@ const DEFAULT_BUSES = [
   ["8車", "", "", "", "", "", 2],
   ["9車", "", "", "", "", "", 2],
   ["10車", "", "", "", "", "", 2],
-  ["11車", "", "", "", "", "", 2]
+  ["11車", "", "", "", "", "", 2],
+  ["台中1車", "", "", "", "", "", 2],
+  ["台中2車", "", "", "", "", "", 2]
 ];
 
 const REGISTRATION_HEADERS = [
@@ -115,6 +117,26 @@ function setupSheet() {
   setupSheets_();
 }
 
+// 一鍵重建「總表」與「車次資料」：刪掉重來、套用最新欄位（其他表不動）
+function rebuildDataSheets() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  ["總表", "車次資料"].forEach(function (name) {
+    const sheet = ss.getSheetByName(name);
+    if (sheet) {
+      ss.deleteSheet(sheet);
+    }
+  });
+
+  setupSheets_();
+
+  SpreadsheetApp.getActive().toast(
+    "已重建「總表」與「車次資料」（新欄位）。請到「車次資料」重新填車長。",
+    "完成",
+    7
+  );
+}
+
 // 開啟試算表時加上自訂選單
 function onOpen() {
   SpreadsheetApp.getUi()
@@ -122,6 +144,10 @@ function onOpen() {
     .addItem("產生各車次名單", "generateBusListSheet")
     .addItem("產生統計表", "generateStatsSheet")
     .addItem("產生車次總覽", "generateBusSummarySheet")
+    .addItem("產生用餐桌次表", "generateDiningSheet")
+    .addItem("整理總表（依車次分組上色）", "sortRegistrationByBus")
+    .addSeparator()
+    .addItem("重建總表＋車次資料（更新欄位）", "rebuildDataSheets")
     .addItem("重建後台工作表", "setupSheet")
     .addToUi();
 }
@@ -238,8 +264,83 @@ function generateBusListSheet() {
 
   generateStatsSheet();
   generateBusSummarySheet();
+  generateDiningSheet();
 
-  SpreadsheetApp.getActive().toast("各車次名單、統計表、車次總覽已產生／更新", "完成", 5);
+  SpreadsheetApp.getActive().toast("各車次名單、統計表、車次總覽、用餐桌次已產生／更新", "完成", 5);
+}
+
+// 產生／更新「用餐桌次」工作表（照圖示）：車長｜搭車人數｜實到人數｜桌號(每車4桌)｜用餐桌次(手填)
+function generateDiningSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const regName = SHEETS.registrations;
+  const buses = getBusInfo_();
+  const SHEET_NAME = "用餐桌次";
+
+  let sheet = ss.getSheetByName(SHEET_NAME);
+
+  // 保留手填欄（實到人數 C、用餐桌次 E），以隱藏 busNo（G 欄）當鍵
+  const prev = {};
+  if (sheet) {
+    const lr = sheet.getLastRow();
+    if (lr >= 1) {
+      sheet.getRange(1, 1, lr, 7).getValues().forEach(function (row) {
+        const key = String(row[6] || "").trim();
+        if (key) prev[key] = { actual: row[2], dining: row[4] };
+      });
+    }
+    sheet.clear();
+  } else {
+    sheet = ss.insertSheet(SHEET_NAME);
+  }
+
+  const out = [];
+  out.push(["車長／副車長", "搭車人數", "實到人數", "桌號", "用餐桌次（請自行填寫）", "", ""]);
+
+  let tableNo = 1;
+  buses.forEach(function (b) {
+    const isSelf = b.busNo.indexOf("自行") >= 0;
+    const label = isSelf
+      ? b.busNo + (b.captain ? "　" + b.captain : "")
+      : b.busNo + "　車長：" + (b.captain || "") + "　副車長：" + (b.viceCaptain || "");
+
+    const tables = [];
+    for (var t = 0; t < 4; t++) { tables.push(tableNo); tableNo++; }
+
+    const restored = prev[b.busNo] || {};
+
+    out.push([
+      label,
+      "=COUNTIF('" + regName + "'!$C:$C,\"" + b.busNo + "\")",
+      restored.actual != null ? restored.actual : "",
+      tables.join("."),
+      restored.dining != null ? restored.dining : "",
+      "",
+      b.busNo
+    ]);
+  });
+
+  out.push(["", "", "", "", "", "", ""]);
+  out.push(["司機（請自行填寫）", "", "", "", "", "", ""]);
+
+  const sumEnd = buses.length + 3;
+  out.push(["合計", "=SUM(B2:B" + sumEnd + ")", "=SUM(C2:C" + sumEnd + ")", "", "", "", ""]);
+
+  sheet.getRange(1, 1, out.length, 7).setValues(out);
+
+  const totalRow = out.length;
+  sheet.getRange(1, 1, 1, 5).setFontWeight("bold").setBackground("#0f80ad").setFontColor("#ffffff");
+  sheet.getRange(totalRow, 1, 1, 3).setFontWeight("bold").setBackground("#fff4c2");
+  if (buses.length > 0) {
+    sheet.getRange(2, 3, buses.length, 1).setBackground("#fff3cd"); // 實到手填
+    sheet.getRange(2, 5, buses.length, 1).setBackground("#fff3cd"); // 用餐桌次手填
+  }
+  sheet.getRange(1, 1, out.length, 5).setBorder(true, true, true, true, true, true, "#c9d4da", null);
+  sheet.setColumnWidth(1, 250);
+  sheet.setColumnWidths(2, 3, 90);
+  sheet.setColumnWidth(4, 110);
+  sheet.setColumnWidth(5, 280);
+  sheet.hideColumns(7);
+  sheet.setFrozenRows(1);
 }
 
 // 產生／更新「車次總覽」：車長副車長＋搭車人數(公式)＋實到人數(手填)＋用餐桌次(每車4桌)＋備註(手填)＋合計
@@ -454,6 +555,8 @@ function submitRegistration_(params) {
       .getRange(sheet.getLastRow() + 1, 1, rows.length, REGISTRATION_HEADERS.length)
       .setValues(rows);
 
+    organizeRegistrations_();
+
     return {
       status: "success",
       eventName: settings.title,
@@ -522,6 +625,65 @@ function countAllByBus_(sheet) {
     if (bus) map[bus] = (map[bus] || 0) + 1;
   });
   return map;
+}
+
+// 手動整理總表（選單用）
+function sortRegistrationByBus() {
+  organizeRegistrations_();
+  SpreadsheetApp.getActive().toast("總表已依車次分組並交替上色", "完成", 5);
+}
+
+// 把總表依「車次」分組排在一起，並依車交替上底色（每次報名後自動執行）
+function organizeRegistrations_() {
+  const sheet = getRegistrationSheet_();
+  const lastRow = sheet.getLastRow();
+  const cols = REGISTRATION_HEADERS.length;
+
+  if (lastRow <= 1) {
+    return;
+  }
+
+  const range = sheet.getRange(2, 1, lastRow - 1, cols);
+  const data = range.getValues();
+
+  const busOrderList = getBusInfo_().map(function (b) { return b.busNo; });
+  function busKey(busNo) {
+    const i = busOrderList.indexOf(busNo);
+    return i < 0 ? 1000 + busSortKey_(busNo) : i;
+  }
+
+  data.sort(function (a, b) {
+    const ka = busKey(String(a[2] || "").trim());
+    const kb = busKey(String(b[2] || "").trim());
+    if (ka !== kb) return ka - kb;
+    const ta = (a[0] instanceof Date) ? a[0].getTime() : 0;
+    const tb = (b[0] instanceof Date) ? b[0].getTime() : 0;
+    return ta - tb;
+  });
+
+  range.setValues(data);
+
+  // 依車交替底色（同一車同色、相鄰車不同色）
+  const colors = ["#e8f3fb", "#fdf1e3"];
+  const backgrounds = [];
+  let lastBus = null;
+  let colorIdx = -1;
+
+  data.forEach(function (row) {
+    const bus = String(row[2] || "").trim();
+    if (bus !== lastBus) {
+      colorIdx++;
+      lastBus = bus;
+    }
+    const c = colors[colorIdx % colors.length];
+    const rowColors = [];
+    for (var i = 0; i < cols; i++) {
+      rowColors.push(c);
+    }
+    backgrounds.push(rowColors);
+  });
+
+  range.setBackgrounds(backgrounds);
 }
 
 // 產生登記頁的車次選項：每台車 = 上車地點 + 車號 + 車長，只列「已填車長」的車
