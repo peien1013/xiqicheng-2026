@@ -3,7 +3,8 @@ const SHEETS = {
   itinerary: "行程表",
   pickups: "上車地點",
   buses: "車次資料",
-  registrations: "總表"
+  registrations: "總表",
+  waitlist: "候補名單"
 };
 
 const DEFAULT_SETTINGS = [
@@ -517,6 +518,42 @@ function submitRegistration_(params) {
     const used = countByBus_(sheet, busNo);
     const requested = people.length;
     const duplicates = findDuplicateNames_(sheet, names);
+    const wantWaitlist = String(params.waitlist || "") === "1" || params.waitlist === true;
+
+    // 候補：寫進「候補名單」，不佔正取、不影響座位計算
+    if (wantWaitlist && !option.selfDrive) {
+      const wsheet = getWaitlistSheet_();
+      const existingWait = countByBus_(wsheet, busNo);
+      const wnow = new Date();
+      const wrows = people.map(function (p) {
+        return [wnow, p.name, busNo, option.pickup, option.departureTime, p.identity];
+      });
+      wsheet
+        .getRange(wsheet.getLastRow() + 1, 1, wrows.length, REGISTRATION_HEADERS.length)
+        .setValues(wrows);
+
+      return {
+        status: "waitlisted",
+        eventName: settings.title,
+        busNo: busNo,
+        pickup: option.pickup,
+        count: people.length,
+        waitStart: existingWait + 1,
+        waitEnd: existingWait + people.length,
+        duplicates: duplicates,
+        records: people.map(function (p) {
+          return {
+            name: p.name,
+            identity: p.identity,
+            pickup: option.pickup,
+            departureTime: option.departureTime,
+            location: option.location,
+            busNo: busNo,
+            selfDrive: false
+          };
+        })
+      };
+    }
 
     if (!option.selfDrive) {
       const openCap = Math.max(option.capacity - reserve, 0);
@@ -797,27 +834,47 @@ function queryByName_(params) {
   const sheet = getRegistrationSheet_();
   const lastRow = sheet.getLastRow();
 
-  if (lastRow <= 1) {
-    return { status: "success", name: name, matches: [] };
+  const matches = [];
+  if (lastRow > 1) {
+    sheet.getRange(2, 1, lastRow - 1, REGISTRATION_HEADERS.length).getValues().forEach(function (row) {
+      if (String(row[1] || "").trim() === name) {
+        matches.push({
+          name: String(row[1] || "").trim(),
+          busNo: String(row[2] || "").trim(),
+          pickup: String(row[3] || "").trim(),
+          departureTime: String(row[4] || "").trim(),
+          identity: String(row[5] || "").trim(),
+          status: "正取"
+        });
+      }
+    });
   }
 
-  const values = sheet.getRange(2, 1, lastRow - 1, REGISTRATION_HEADERS.length).getValues();
-
-  const matches = values
-    .filter(function (row) {
-      return String(row[1] || "").trim() === name;
-    })
-    .map(function (row) {
-      return {
-        name: String(row[1] || "").trim(),
-        busNo: String(row[2] || "").trim(),
-        pickup: String(row[3] || "").trim(),
-        departureTime: String(row[4] || "").trim(),
-        identity: String(row[5] || "").trim()
-      };
+  // 候補名單：算出每個人在該車的候補順位（依登記時間＝列順序）
+  const waitlist = [];
+  const wsheet = getWaitlistSheet_();
+  const wlast = wsheet.getLastRow();
+  if (wlast > 1) {
+    const perBus = {};
+    wsheet.getRange(2, 1, wlast - 1, REGISTRATION_HEADERS.length).getValues().forEach(function (row) {
+      const bus = String(row[2] || "").trim();
+      if (!bus) return;
+      perBus[bus] = (perBus[bus] || 0) + 1;
+      if (String(row[1] || "").trim() === name) {
+        waitlist.push({
+          name: name,
+          busNo: bus,
+          pickup: String(row[3] || "").trim(),
+          departureTime: String(row[4] || "").trim(),
+          identity: String(row[5] || "").trim(),
+          position: perBus[bus],
+          status: "候補"
+        });
+      }
     });
+  }
 
-  return { status: "success", name: name, matches: matches };
+  return { status: "success", name: name, matches: matches, waitlist: waitlist };
 }
 
 // 全部名單（給前台依車次排序顯示）
@@ -855,6 +912,7 @@ function setupSheets_() {
   setupPickupsSheet_(ss);
   setupBusesSheet_(ss);
   getRegistrationSheet_();
+  getWaitlistSheet_();
 }
 
 function setupSettingsSheet_(ss) {
@@ -979,6 +1037,25 @@ function getRegistrationSheet_() {
     sheet.setFrozenRows(1);
     sheet.autoResizeColumns(1, REGISTRATION_HEADERS.length);
     applyDuplicateHighlight_(sheet);
+  }
+
+  return sheet;
+}
+
+// 候補名單工作表（欄位與總表相同；在此表＝候補身分）
+function getWaitlistSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEETS.waitlist);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEETS.waitlist);
+  }
+
+  if (sheet.getLastRow() === 0) {
+    sheet.getRange(1, 1, 1, REGISTRATION_HEADERS.length).setValues([REGISTRATION_HEADERS]);
+    formatHeader_(sheet, REGISTRATION_HEADERS.length);
+    sheet.setFrozenRows(1);
+    sheet.autoResizeColumns(1, REGISTRATION_HEADERS.length);
   }
 
   return sheet;

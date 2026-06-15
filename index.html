@@ -1321,6 +1321,8 @@
       loadRoster();
     });
 
+    let pendingFull = null; // 暫存「額滿待決定」的這團人，給候補按鈕用
+
     form.addEventListener("submit", async function (e) {
       e.preventDefault();
 
@@ -1341,6 +1343,11 @@
         return;
       }
 
+      submitFlow(people, selectedBus, false);
+    });
+
+    // 共用送出流程：waitlist=true 代表這次是要候補
+    async function submitFlow(people, bus, waitlist) {
       submitBtn.disabled = true;
       submitBtn.textContent = "送出中...";
 
@@ -1348,73 +1355,119 @@
         if (!GOOGLE_SCRIPT_URL) {
           showMessage(
             `測試報名成功：<br>
-             車次：${escapeHtml(selectedBus)}<br>
+             車次：${escapeHtml(bus)}<br>
              報名人數：${people.length} 人<br>
              名單：<br>${people.map(function (p) { return escapeHtml(p.name) + "（" + escapeHtml(p.identity) + "）"; }).join("<br>")}<br><br>
              目前尚未串接 Google Sheet，所以資料不會真的寫入後台。`
           );
-          form.reset();
-          identityChoices = {};
-          rebuildIdentityList();
-          clearBusSelection();
-          updateRevealState();
+          resetSignupForm();
           return;
         }
 
         const response = await jsonp(GOOGLE_SCRIPT_URL, {
           action: "submit",
           people: JSON.stringify(people),
-          bus: selectedBus
+          bus: bus,
+          waitlist: waitlist ? "1" : "0"
         });
 
-        if (response.status === "success") {
-          const listHtml = response.records.map(function (record) {
-            const assignText = record.selfDrive ? "自行開車" : escapeHtml(record.busNo);
-            const idText = record.identity ? `（${escapeHtml(record.identity)}）` : "";
-            return `${escapeHtml(record.name)}${idText}：${assignText}`;
-          }).join("<br>");
-
-          const dupNote = (response.duplicates && response.duplicates.length)
-            ? `<br><br>⚠️ 提醒：「${response.duplicates.map(escapeHtml).join("、")}」之前已經報名過囉！這次又多登記了一筆，若不是重複請忽略，是重複的話請聯絡工作人員協助取消。`
-            : "";
-
-          showMessage(
-            `報名成功！<br>
-             車次：${escapeHtml(response.busNo || "")}<br>
-             上車地點：${escapeHtml(response.pickup)}<br>
-             報名人數：${response.count} 人<br><br>
-             ${listHtml}${dupNote}`
-          );
-
-          form.reset();
-          identityChoices = {};
-          rebuildIdentityList();
-          clearBusSelection();
-          updateRevealState();
-          loadStatus();
-          loadRoster();
-        } else if (response.status === "full") {
-          showMessage(
-            `${escapeHtml(response.busNo || "這台車")} 名額不足。<br>
-             目前可報名：${response.remaining} 位<br>
-             本次報名：${response.requested} 人<br>
-             請改選其他車次。`,
-            true
-          );
-          loadStatus();
-        } else if (response.status === "closed") {
-          showMessage("目前報名尚未開放或已關閉。", true);
-          loadStatus();
-        } else {
-          showMessage(response.message || "送出失敗，請稍後再試。", true);
-        }
+        handleSubmitResponse(response, people, bus);
       } catch (error) {
         showMessage("送出失敗，請確認 Apps Script 網址是否正確，或稍後再試。", true);
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = "送出報名";
       }
-    });
+    }
+
+    function handleSubmitResponse(response, people, bus) {
+      const dupNote = (response.duplicates && response.duplicates.length)
+        ? `<br><br>⚠️ 提醒：「${response.duplicates.map(escapeHtml).join("、")}」之前已經報名過囉！這次又多登記了一筆，若不是重複請忽略，是重複的話請聯絡工作人員協助取消。`
+        : "";
+
+      if (response.status === "success") {
+        const listHtml = (response.records || []).map(function (record) {
+          const assignText = record.selfDrive ? "自行開車" : escapeHtml(record.busNo);
+          const idText = record.identity ? `（${escapeHtml(record.identity)}）` : "";
+          return `${escapeHtml(record.name)}${idText}：${assignText}`;
+        }).join("<br>");
+
+        showMessage(
+          `報名成功！<br>
+           車次：${escapeHtml(response.busNo || "")}<br>
+           上車地點：${escapeHtml(response.pickup)}<br>
+           報名人數：${response.count} 人<br><br>
+           ${listHtml}${dupNote}`
+        );
+        pendingFull = null;
+        resetSignupForm();
+        loadStatus();
+        loadRoster();
+      } else if (response.status === "waitlisted") {
+        const posText = (response.waitStart === response.waitEnd)
+          ? `第 ${response.waitStart} 位`
+          : `第 ${response.waitStart}～${response.waitEnd} 位`;
+        showMessage(
+          `🕓 已加入候補名單！<br>
+           候補車次：${escapeHtml(response.busNo || "")}<br>
+           上車地點：${escapeHtml(response.pickup)}<br>
+           候補人數：${response.count} 人（目前是 ${posText} 候補）<br><br>
+           有空位時工作人員會通知你；你也可以另外報名其他還有名額的車次。${dupNote}`
+        );
+        pendingFull = null;
+        resetSignupForm();
+        loadStatus();
+        loadRoster();
+      } else if (response.status === "full") {
+        pendingFull = { people: people, bus: bus };
+        showFullOptions(response);
+      } else if (response.status === "closed") {
+        showMessage("目前報名尚未開放或已關閉。", true);
+        loadStatus();
+      } else {
+        showMessage(response.message || "送出失敗，請稍後再試。", true);
+      }
+    }
+
+    // 額滿：顯示「候補本車次 / 改選其他車次」兩個選項
+    function showFullOptions(response) {
+      const busNo = response.busNo || "這台車";
+      const remaining = (response.remaining === undefined) ? 0 : response.remaining;
+      const requested = response.requested || (pendingFull ? pendingFull.people.length : 0);
+
+      resultBox.className = "result error";
+      resultBox.style.display = "block";
+      resultBox.innerHTML = `
+        <div style="font-size:22px;font-weight:900;margin-bottom:6px;">😢 ${escapeHtml(busNo)} 名額不足</div>
+        目前還剩 <b>${remaining}</b> 位，你這次要報 <b>${requested}</b> 人，坐不下。<br>
+        你可以選擇：
+        <div class="actions" style="margin-top:14px;">
+          <button type="button" class="btn btn-primary" onclick="confirmWaitlist()">① 候補 ${escapeHtml(busNo)}（${requested}人）</button>
+          <button type="button" class="btn btn-secondary" onclick="chooseOtherBus()">② 改選其他車次</button>
+        </div>
+      `;
+      resultBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function confirmWaitlist() {
+      if (!pendingFull) return;
+      submitFlow(pendingFull.people, pendingFull.bus, true);
+    }
+
+    function chooseOtherBus() {
+      hideMessage();
+      clearBusSelection();
+      updateRevealState();
+      document.getElementById("busGrid").scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function resetSignupForm() {
+      form.reset();
+      identityChoices = {};
+      rebuildIdentityList();
+      clearBusSelection();
+      updateRevealState();
+    }
 
     let rosterData = [];
     let busInfoData = {};
@@ -1446,16 +1499,30 @@
           box.innerHTML = `<div class="qr-empty">查詢功能尚未啟用，請先重新部署後台。</div>`;
           return;
         }
-        renderQueryResult(name, res.matches);
+        renderQueryResult(name, res.matches, res.waitlist);
       } catch (error) {
         box.innerHTML = `<div class="qr-empty">查詢失敗，請稍後再試。</div>`;
       }
     }
 
-    function renderQueryResult(name, matches) {
+    function renderQueryResult(name, matches, waitlist) {
       const box = document.getElementById("queryResult");
 
       if (!matches.length) {
+        // 沒有正取，但在候補名單裡 → 顯示候補順位
+        if (waitlist && waitlist.length) {
+          const cards = waitlist.map(function (w) {
+            const busLabel = String(w.busNo).indexOf("自行") >= 0 ? "自行開車" : w.busNo;
+            return `
+              <div class="qr-card" style="background:var(--orange-soft);border-color:var(--orange-line);">
+                <div class="qr-bus" style="color:#a06a00;">🕓 候補中：${escapeHtml(busLabel)}</div>
+                <div class="qr-row">${escapeHtml(name)} 目前是 <b>${escapeHtml(w.busNo)}</b> 的候補 <b>第 ${w.position} 位</b></div>
+                <div class="qr-row qr-label">有空位時工作人員會通知你；也可以改報其他還有名額的車次。</div>
+              </div>`;
+          }).join("");
+          box.innerHTML = cards;
+          return;
+        }
         box.innerHTML = `<div class="qr-empty">查無「${escapeHtml(name)}」的報名資料，請確認姓名是否正確。</div>`;
         return;
       }
@@ -1706,7 +1773,7 @@
           : `${escapeHtml(opt.busNo)}　${escapeHtml(opt.captain || "")}`;
         const remainText = opt.selfDrive
           ? "不限名額"
-          : (isFull ? "已額滿" : `尚可報名 ${opt.remaining} 位`);
+          : (isFull ? "已額滿（可候補）" : `尚可報名 ${opt.remaining} 位`);
 
         btn.innerHTML = `
           ${head}
@@ -1724,10 +1791,6 @@
         }
 
         btn.addEventListener("click", function () {
-          if (isFull) {
-            showMessage("這台車已額滿，請改選其他車次。", true);
-            return;
-          }
           selectedBus = opt.busNo;
           document.querySelectorAll(".pickup-btn").forEach(function (button) {
             button.classList.remove("active");
@@ -1735,6 +1798,9 @@
           btn.classList.add("active");
           updateRevealState();
           hideMessage();
+          if (isFull) {
+            showMessage(`${escapeHtml(opt.busNo)} 目前已額滿，你還是可以填寫姓名送出，送出後可選擇「候補本車次」或改選其他車次。`, false);
+          }
         });
 
         grid.appendChild(btn);
