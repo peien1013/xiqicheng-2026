@@ -142,6 +142,7 @@ function rebuildDataSheets() {
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu("報名系統")
+    .addItem("產生各車獨立工作表（1車/2車…）", "generatePerBusSheets")
     .addItem("產生各車次名單", "generateBusListSheet")
     .addItem("產生統計表", "generateStatsSheet")
     .addItem("產生車次總覽", "generateBusSummarySheet")
@@ -151,6 +152,103 @@ function onOpen() {
     .addItem("重建總表＋車次資料（更新欄位）", "rebuildDataSheets")
     .addItem("重建後台工作表", "setupSheet")
     .addToUi();
+}
+
+// 建立「車次 → 上車地點/出發時間」對應（依「上車地點」的車次欄，不受車長有無影響）
+function buildBusPickupMap_() {
+  const map = {};
+  getPickupConfigs_().forEach(function (p) {
+    if (p.selfDrive) return;
+    parseBusNumbers_(p.busLabel).forEach(function (n) {
+      map[n + "車"] = {
+        pickup: p.name,
+        departureTime: p.departureTime,
+        location: p.location
+      };
+    });
+  });
+  return map;
+}
+
+// 每台遊覽車各開一張獨立工作表（分頁名稱＝1車、2車…）：表頭寫車長/副車長/車號/司機/上車地點/出發時間，名單 4 人一排
+function generatePerBusSheets() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  setupSheets_();
+
+  const pickMap = buildBusPickupMap_();
+  const busInfoList = getBusInfo_(); // 依「車次資料」列順序
+
+  // 從總表把名單依車次分組
+  const regSheet = getRegistrationSheet_();
+  const lastRow = regSheet.getLastRow();
+  const regs = lastRow > 1
+    ? regSheet.getRange(2, 1, lastRow - 1, REGISTRATION_HEADERS.length).getValues()
+    : [];
+
+  const groups = {};
+  regs.forEach(function (row) {
+    const name = String(row[1] || "").trim();
+    if (!name) return;
+    const bus = String(row[2] || "").trim();
+    if (!groups[bus]) groups[bus] = [];
+    groups[bus].push({ name: name, identity: String(row[5] || "").trim() });
+  });
+
+  const made = [];
+
+  busInfoList.forEach(function (info) {
+    const busNo = info.busNo;
+    if (busNo.indexOf("自行") >= 0) return;   // 自行開車不做
+    if (!pickMap[busNo]) return;              // 只做「上車地點」有列到的遊覽車
+
+    const pk = pickMap[busNo];
+    const people = groups[busNo] || [];
+
+    let sheet = ss.getSheetByName(busNo);
+    if (!sheet) {
+      sheet = ss.insertSheet(busNo);
+    }
+    sheet.clear();
+
+    const out = [];
+    out.push([busNo + "　車長：" + (info.captain || "") + "　副車長：" + (info.viceCaptain || ""), "", "", ""]);
+    out.push(["上車地點：" + (pk.pickup || "") + (pk.location ? "（" + pk.location + "）" : ""), "", "", ""]);
+    out.push(["出發時間：" + (pk.departureTime || ""), "", "", ""]);
+    out.push(["車號：" + (info.plate || "") + "　司機：" + (info.driver || "") + "　電話：" + (info.driverPhone || ""), "", "", ""]);
+    out.push(["", "", "", ""]);
+    out.push(["名單　共 " + people.length + " 人", "", "", ""]);
+
+    if (people.length) {
+      for (var i = 0; i < people.length; i += 4) {
+        const r = ["", "", "", ""];
+        for (var j = 0; j < 4; j++) {
+          const p = people[i + j];
+          if (p) r[j] = p.name + (p.identity === "小孩" ? "（小孩）" : "");
+        }
+        out.push(r);
+      }
+    } else {
+      out.push(["（目前尚無報名）", "", "", ""]);
+    }
+
+    sheet.getRange(1, 1, out.length, 4).setValues(out);
+    sheet.getRange(1, 1, out.length, 4).setBorder(true, true, true, true, true, true, "#c9d4da", null);
+
+    // 樣式：標題列(藍底白字)、資訊列(淺底)、名單標題(黃底)
+    sheet.getRange(1, 1, 1, 4).setFontWeight("bold").setFontSize(13).setBackground("#0f80ad").setFontColor("#ffffff");
+    sheet.getRange(2, 1, 3, 4).setFontWeight("bold").setBackground("#eef3f6");
+    sheet.getRange(6, 1, 1, 4).setFontWeight("bold").setBackground("#fff4c2");
+    sheet.setColumnWidths(1, 4, 150);
+    sheet.setFrozenRows(6);
+
+    made.push(busNo);
+  });
+
+  if (made.length) {
+    SpreadsheetApp.getActive().toast("已產生／更新各車工作表：" + made.join("、"), "完成", 6);
+  } else {
+    SpreadsheetApp.getActive().toast("找不到可產生的車次。請確認「上車地點」的車次欄與「車次資料」已設定。", "提醒", 6);
+  }
 }
 
 // 依「總表」報名，套上車次資料，產生「各車次」工作表（名單 4 人一排）

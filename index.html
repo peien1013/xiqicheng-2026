@@ -1110,7 +1110,7 @@
     <div class="container">
 
       <section class="hero">
-        <div id="statusPill" class="status-pill">
+        <div id="statusPill" class="status-pill" style="display:none;">
           <span class="live-dot"></span>
           <span id="statusText">報名狀態確認中…</span>
         </div>
@@ -1124,11 +1124,11 @@
             </button>
           </div>
 
-          <p id="activitySubtitle" class="subtitle">請先選擇車次，再填寫姓名。可以一次報名多人，一行一個姓名。</p>
+          <p id="activitySubtitle" class="subtitle">輸入姓名查你的車次，或點「各車次名單」看整台車 🚌</p>
 
           <div class="hero-steps">
-            <b>操作順序</b>
-            <span>① 選擇車次　→　② 填寫姓名　→　③ 確認身分　→　④ 送出報名</span>
+            <b>怎麼查</b>
+            <span>點「🚌 各車次名單」看整台車；或用「🔍 查詢姓名」找自己在哪一車。</span>
           </div>
         </div>
       </section>
@@ -1161,9 +1161,18 @@
       </section>
 
       <section class="mode-switch">
-        <button type="button" id="tabSignup" class="mode-btn signup" onclick="setMode('signup')">📝 報名登記</button>
-        <button type="button" id="tabQuery" class="mode-btn query" onclick="setMode('query')">🔍 查詢車次</button>
+        <button type="button" id="tabRoster" class="mode-btn signup" onclick="setMode('roster')">🚌 各車次名單</button>
+        <button type="button" id="tabQuery" class="mode-btn query" onclick="setMode('query')">🔍 查詢姓名</button>
       </section>
+
+      <div id="rosterPanel" class="mode-panel">
+        <div class="col-card signup">
+          <h2 class="col-title" style="color:#0a6388;border-bottom-color:#bfe5f6;">🚌 各車次名單</h2>
+          <p class="step-sub">點選車次，看車長、集合地點、出發時間與全部名單。</p>
+          <div id="busCards" class="pickup-grid"></div>
+          <div id="busDetail"></div>
+        </div>
+      </div>
 
       <div id="signupPanel" class="mode-panel">
         <div class="col-card signup">
@@ -1192,25 +1201,13 @@
 
       <div id="queryPanel" class="mode-panel">
         <div class="col-card query">
-          <label class="section-label" for="queryName">輸入你的姓名，查你的車次與車表</label>
+          <label class="section-label" for="queryName">輸入你的姓名，查你在哪一車</label>
           <div class="query-row">
             <input id="queryName" type="text" placeholder="輸入姓名" autocomplete="off" />
             <button type="button" class="btn btn-primary query-btn" onclick="doQuery()">查詢</button>
           </div>
           <div id="queryResult" class="query-result"></div>
         </div>
-
-        <section class="roster-card">
-          <button type="button" class="roster-toggle" onclick="toggleRoster()">
-            <span>🚌 各車次名單</span>
-            <span id="rosterIcon">＋</span>
-          </button>
-          <div id="rosterBody" class="roster-body">
-            <p class="step-sub">點選車次，查看該車的報名名單。</p>
-            <div id="busTabs" class="bus-tabs"></div>
-            <div id="rosterList" class="roster-list"></div>
-          </div>
-        </section>
       </div>
 
       <div class="footer">西岐城活動報名系統</div>
@@ -1317,6 +1314,7 @@
 
     document.addEventListener("DOMContentLoaded", function () {
       renderPage(DEFAULT_DATA);
+      setMode("roster");
       loadStatus();
       loadRoster();
     });
@@ -1474,11 +1472,11 @@
     let busOrder = [];
 
     function setMode(mode) {
-      const isSignup = mode === "signup";
-      document.getElementById("signupPanel").classList.toggle("show", isSignup);
-      document.getElementById("queryPanel").classList.toggle("show", !isSignup);
-      document.getElementById("tabSignup").classList.toggle("active", isSignup);
-      document.getElementById("tabQuery").classList.toggle("active", !isSignup);
+      const isRoster = mode === "roster";
+      document.getElementById("rosterPanel").classList.toggle("show", isRoster);
+      document.getElementById("queryPanel").classList.toggle("show", !isRoster);
+      document.getElementById("tabRoster").classList.toggle("active", isRoster);
+      document.getElementById("tabQuery").classList.toggle("active", !isRoster);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
@@ -1548,7 +1546,7 @@
         busInfoData = {};
         busOrder = [];
       }
-      renderBusTabs();
+      renderBusCards();
     }
 
     function buildBusInfo(list) {
@@ -1606,6 +1604,63 @@
         tab.classList.toggle("active", tab.dataset.bus === bus);
       });
       renderBusSheet(bus, document.getElementById("rosterList"), "");
+    }
+
+    // 各車次名單（主畫面）：每台車一張卡，顯示車長/集合/出發，點了看全部名單
+    function renderBusCards() {
+      const grid = document.getElementById("busCards");
+      const detail = document.getElementById("busDetail");
+      if (!grid) return;
+
+      if (!rosterData.length) {
+        grid.innerHTML = `<div class="roster-empty">目前尚無名單（或後台尚未啟用查詢功能）。</div>`;
+        if (detail) detail.innerHTML = "";
+        return;
+      }
+
+      const buses = [];
+      rosterData.forEach(function (r) {
+        if (buses.indexOf(r.busNo) < 0) buses.push(r.busNo);
+      });
+      buses.sort(function (a, b) {
+        const ia = busOrder.indexOf(a);
+        const ib = busOrder.indexOf(b);
+        const ka = ia < 0 ? 1000 + busSortKey(a) : ia;
+        const kb = ib < 0 ? 1000 + busSortKey(b) : ib;
+        return ka - kb;
+      });
+
+      const pickups = latestData.pickups || DEFAULT_DATA.pickups || [];
+
+      grid.innerHTML = buses.map(function (bus) {
+        const people = rosterData.filter(function (r) { return r.busNo === bus; });
+        const info = busInfoData[bus] || {};
+        const isSelf = String(bus).indexOf("自行") >= 0;
+        const pickupName = people.length ? people[0].pickup : "";
+        const pk = pickups.find(function (p) { return p.name === pickupName; }) || {};
+
+        const lines = isSelf
+          ? `<small>自行開車</small><small>共 ${people.length} 人</small>`
+          : `<small>車長：${escapeHtml(info.captain || "—")}</small>
+             <small>集合：${escapeHtml(pk.location || pickupName || "—")}</small>
+             <small>出發：${escapeHtml(pk.departureTime || "—")}</small>
+             <small>共 ${people.length} 人</small>`;
+
+        return `<button type="button" class="pickup-btn" data-bus="${escapeHtml(bus)}" onclick="selectBusCard(this.dataset.bus)">${escapeHtml(isSelf ? "自行開車" : bus)}${lines}</button>`;
+      }).join("");
+
+      if (detail) {
+        detail.innerHTML = `<div class="roster-empty" style="margin-top:14px;">👆 點上面的車次，看車長、集合、出發與全部名單。</div>`;
+      }
+    }
+
+    function selectBusCard(bus) {
+      document.querySelectorAll("#busCards .pickup-btn").forEach(function (b) {
+        b.classList.toggle("active", b.dataset.bus === bus);
+      });
+      const detail = document.getElementById("busDetail");
+      renderBusSheet(bus, detail, "");
+      if (detail) detail.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
 
     function renderBusSheet(busNo, container, highlightName) {
@@ -1677,7 +1732,7 @@
 
       document.getElementById("activityTitle").textContent = activity.title || DEFAULT_DATA.activity.title;
       document.getElementById("dateBadge").textContent = "活動時間：" + (activity.date || "2026.11.8 星期日");
-      document.getElementById("activitySubtitle").textContent = activity.subtitle || DEFAULT_DATA.activity.subtitle;
+      document.getElementById("activitySubtitle").textContent = "輸入姓名查你的車次，或點「各車次名單」看整台車 🚌";
 
       document.getElementById("busFee").textContent =
         `大人 $${activity.busAdultFee || "1100"}｜小孩 $${activity.busChildFee || "900"}`;
