@@ -984,7 +984,7 @@ function getRoster_() {
     return { status: "success", roster: [] };
   }
 
-  const values = sheet.getRange(2, 1, lastRow - 1, REGISTRATION_HEADERS.length).getValues();
+  const values = sheet.getRange(2, 1, lastRow - 1, 7).getValues();
 
   const roster = values
     .filter(function (row) {
@@ -995,7 +995,8 @@ function getRoster_() {
         name: String(row[1] || "").trim(),
         busNo: String(row[2] || "").trim(),
         pickup: String(row[3] || "").trim(),
-        identity: String(row[5] || "").trim()
+        identity: String(row[5] || "").trim(),
+        paid: String(row[6] || "").trim()
       };
     });
 

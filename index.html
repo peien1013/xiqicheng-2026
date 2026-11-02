@@ -761,16 +761,16 @@
 
     .mode-switch {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
       margin-bottom: 18px;
     }
 
     .mode-btn {
-      padding: 24px 16px;
-      border-radius: 24px;
+      padding: 20px 8px;
+      border-radius: 22px;
       border: 3px solid;
-      font-size: 26px;
+      font-size: 21px;
       font-weight: 900;
       cursor: pointer;
       box-shadow: 0 12px 28px rgba(15, 128, 173, 0.14);
@@ -798,6 +798,23 @@
       background: linear-gradient(180deg, #ffcc4d, #f0a500);
       border-color: #e09a00;
       color: #4a3000;
+    }
+
+    .mode-btn.pay {
+      background: #fff1f1;
+      border-color: #ffd5da;
+      color: #9b2c2c;
+    }
+
+    .mode-btn.active.pay {
+      background: linear-gradient(180deg, #e9607a, #c0344f);
+      border-color: #c0344f;
+      color: #fff;
+    }
+
+    .col-card.pay {
+      background: #fff6f6;
+      border-color: #ffd5da;
     }
 
     .mode-panel { display: none; }
@@ -1161,9 +1178,18 @@
       </section>
 
       <section class="mode-switch">
-        <button type="button" id="tabRoster" class="mode-btn signup" onclick="setMode('roster')">🚌 各車次名單</button>
-        <button type="button" id="tabQuery" class="mode-btn query" onclick="setMode('query')">🔍 查詢姓名</button>
+        <button type="button" id="tabRoster" class="mode-btn signup" onclick="setMode('roster')">🚌 各車次</button>
+        <button type="button" id="tabQuery" class="mode-btn query" onclick="setMode('query')">🔍 查詢</button>
+        <button type="button" id="tabUnpaid" class="mode-btn pay" onclick="setMode('unpaid')">💰 未付款</button>
       </section>
+
+      <div id="unpaidPanel" class="mode-panel">
+        <div class="col-card pay">
+          <h2 class="col-title" style="color:#9b2c2c;border-bottom-color:#ffd5da;">💰 未付款名單</h2>
+          <p class="step-sub">以下是尚未繳費的名單（車次＋姓名）。繳費後，後台把該人「費用」欄的「未繳費」清掉即可。</p>
+          <div id="unpaidList"></div>
+        </div>
+      </div>
 
       <div id="rosterPanel" class="mode-panel">
         <div class="col-card signup">
@@ -1472,12 +1498,58 @@
     let busOrder = [];
 
     function setMode(mode) {
-      const isRoster = mode === "roster";
-      document.getElementById("rosterPanel").classList.toggle("show", isRoster);
-      document.getElementById("queryPanel").classList.toggle("show", !isRoster);
-      document.getElementById("tabRoster").classList.toggle("active", isRoster);
-      document.getElementById("tabQuery").classList.toggle("active", !isRoster);
+      document.getElementById("rosterPanel").classList.toggle("show", mode === "roster");
+      document.getElementById("queryPanel").classList.toggle("show", mode === "query");
+      document.getElementById("unpaidPanel").classList.toggle("show", mode === "unpaid");
+      document.getElementById("tabRoster").classList.toggle("active", mode === "roster");
+      document.getElementById("tabQuery").classList.toggle("active", mode === "query");
+      document.getElementById("tabUnpaid").classList.toggle("active", mode === "unpaid");
+      if (mode === "unpaid") renderUnpaid();
       window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    // 未付款名單：依車次分組，顯示車次＋姓名
+    function renderUnpaid() {
+      const box = document.getElementById("unpaidList");
+      if (!box) return;
+
+      if (!rosterData.length) {
+        box.innerHTML = `<div class="roster-empty">名單載入中…（若一直空白，表示後台尚未重新部署繳費功能）</div>`;
+        return;
+      }
+
+      const unpaid = rosterData.filter(function (r) {
+        return String(r.paid || "").trim() === "未繳費";
+      });
+
+      if (!unpaid.length) {
+        box.innerHTML = `<div class="qr-card" style="background:var(--green-soft);border-color:var(--green-line);"><div class="qr-row" style="color:#1d6b3b;font-size:20px;font-weight:900;">🎉 目前沒有未付款的人！</div></div>`;
+        return;
+      }
+
+      const groups = {};
+      const order = [];
+      unpaid.forEach(function (r) {
+        if (!groups[r.busNo]) { groups[r.busNo] = []; order.push(r.busNo); }
+        groups[r.busNo].push(r.name);
+      });
+      order.sort(function (a, b) {
+        const ia = busOrder.indexOf(a);
+        const ib = busOrder.indexOf(b);
+        const ka = ia < 0 ? 1000 + busSortKey(a) : ia;
+        const kb = ib < 0 ? 1000 + busSortKey(b) : ib;
+        return ka - kb;
+      });
+
+      const html = order.map(function (bus) {
+        const names = groups[bus];
+        const items = names.map(function (n) {
+          return `<span style="display:inline-block;background:#fff;border:2px solid #ffd5da;border-radius:12px;padding:6px 12px;margin:4px 6px 0 0;font-size:18px;font-weight:800;">${escapeHtml(n)}</span>`;
+        }).join("");
+        return `<div style="margin-bottom:14px;"><div style="font-size:21px;font-weight:900;color:#9b2c2c;margin-bottom:2px;">${escapeHtml(bus)}　<span style="font-size:16px;color:#7a4b00;">${names.length} 人</span></div><div>${items}</div></div>`;
+      }).join("");
+
+      box.innerHTML = `<div class="qr-banner" style="color:#9b2c2c;">共 <b>${unpaid.length}</b> 人尚未付款</div>${html}`;
     }
 
     async function doQuery() {
@@ -1547,6 +1619,7 @@
         busOrder = [];
       }
       renderBusCards();
+      renderUnpaid();
     }
 
     function buildBusInfo(list) {
