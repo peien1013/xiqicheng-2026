@@ -1120,6 +1120,27 @@
     @media (max-width: 400px) {
       .pickup-grid { grid-template-columns: 1fr; }
     }
+
+    /* 長輩大字版：查詢頁、各車次、未付款的字放大 */
+    .pickup-btn { font-size: 24px; }
+    .pickup-btn small { font-size: 19px; margin-top: 4px; }
+    .bs-bus { font-size: 34px; }
+    .bs-count, .bs-line, .bs-meta { font-size: 21px; }
+    .bs-seat { font-size: 21px; padding: 12px 6px; }
+    .qr-banner { font-size: 24px; }
+    .qr-bus { font-size: 32px; }
+    .qr-row { font-size: 21px; }
+    .qr-empty, .roster-empty { font-size: 21px; font-weight: 800; }
+    .step-sub { font-size: 21px; }
+    .section-label { font-size: 25px; }
+    #queryName { font-size: 24px; }
+    .query-btn { font-size: 23px; }
+
+    @media (max-width: 560px) {
+      .pickup-btn { font-size: 23px; }
+      .pickup-btn small { font-size: 18px; }
+      .mode-btn { font-size: 19px; padding: 18px 4px; }
+    }
   </style>
 </head>
 <body>
@@ -1544,9 +1565,9 @@
       const html = order.map(function (bus) {
         const names = groups[bus];
         const items = names.map(function (n) {
-          return `<span style="display:inline-block;background:#fff;border:2px solid #ffd5da;border-radius:12px;padding:6px 12px;margin:4px 6px 0 0;font-size:18px;font-weight:800;">${escapeHtml(n)}</span>`;
+          return `<span style="display:inline-block;background:#fff;border:2px solid #ffd5da;border-radius:12px;padding:8px 14px;margin:5px 6px 0 0;font-size:22px;font-weight:800;">${escapeHtml(n)}</span>`;
         }).join("");
-        return `<div style="margin-bottom:14px;"><div style="font-size:21px;font-weight:900;color:#9b2c2c;margin-bottom:2px;">${escapeHtml(bus)}　<span style="font-size:16px;color:#7a4b00;">${names.length} 人</span></div><div>${items}</div></div>`;
+        return `<div style="margin-bottom:14px;"><div style="font-size:25px;font-weight:900;color:#9b2c2c;margin-bottom:2px;">${escapeHtml(bus)}　<span style="font-size:20px;color:#7a4b00;">${names.length} 人</span></div><div>${items}</div></div>`;
       }).join("");
 
       box.innerHTML = `<div class="qr-banner" style="color:#9b2c2c;">共 <b>${unpaid.length}</b> 人尚未付款</div>${html}`;

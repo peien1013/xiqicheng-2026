@@ -1097,26 +1097,46 @@ function getBusInfo_() {
   }
 
   const lastRow = sheet.getLastRow();
+  const lastCol = sheet.getLastColumn();
 
-  if (lastRow <= 1) {
+  if (lastRow <= 1 || lastCol < 1) {
     return [];
   }
 
-  const values = sheet.getRange(2, 1, lastRow - 1, 7).getValues();
+  const values = sheet.getRange(1, 1, lastRow, lastCol).getValues();
+  const headers = values[0].map(function (h) { return String(h || "").trim(); });
 
-  return values
+  // 依標題找欄位（欄位順序可自由調整、可多插欄）；找不到時沿用舊版固定位置
+  function col(name, fallback) {
+    const i = headers.indexOf(name);
+    return i >= 0 ? i : fallback;
+  }
+  const c = {
+    busNo: col("車次", 0),
+    captain: col("車長", 1),
+    viceCaptain: col("副車長", 2),
+    plate: col("車號", 3),
+    driver: col("司機", 4),
+    driverPhone: col("司機電話", 5),
+    reserve: col("保留名額", -1)
+  };
+  function cell(row, i) {
+    return i >= 0 ? row[i] : "";
+  }
+
+  return values.slice(1)
     .filter(function (row) {
-      return String(row[0] || "").trim();
+      return String(cell(row, c.busNo) || "").trim();
     })
     .map(function (row) {
-      const reserveRaw = row[6];
+      const reserveRaw = cell(row, c.reserve);
       return {
-        busNo: String(row[0] || "").trim(),
-        captain: String(row[1] || "").trim(),
-        viceCaptain: String(row[2] || "").trim(),
-        plate: String(row[3] || "").trim(),
-        driver: String(row[4] || "").trim(),
-        driverPhone: String(row[5] || "").trim(),
+        busNo: String(cell(row, c.busNo) || "").trim(),
+        captain: String(cell(row, c.captain) || "").trim(),
+        viceCaptain: String(cell(row, c.viceCaptain) || "").trim(),
+        plate: String(cell(row, c.plate) || "").trim(),
+        driver: String(cell(row, c.driver) || "").trim(),
+        driverPhone: String(cell(row, c.driverPhone) || "").trim(),
         reserve: (reserveRaw === "" || reserveRaw === null || reserveRaw === undefined) ? null : Number(reserveRaw)
       };
     });
