@@ -1145,8 +1145,7 @@
     .bus-row {
       width: 100%;
       display: flex;
-      align-items: stretch;
-      gap: 14px;
+      flex-direction: column;
       padding: 0;
       overflow: hidden;
       border: 3px solid var(--blue-line);
@@ -1160,6 +1159,21 @@
 
     .bus-row:focus-visible { outline: 3px solid var(--selected-line); outline-offset: 2px; }
     .bus-row.open { border-color: var(--selected-line); }
+
+    .bus-main { display: flex; align-items: stretch; gap: 14px; }
+
+    .bus-toggle {
+      display: block;
+      padding: 8px 10px;
+      border-top: 2px solid var(--blue-line);
+      background: var(--blue-soft);
+      color: var(--main-dark);
+      font-size: 21px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .bus-row.open .bus-toggle { background: var(--selected); border-top-color: var(--selected-line); color: #6b4a00; }
 
     .bus-no {
       flex: 0 0 108px;
@@ -1176,9 +1190,8 @@
 
     .bus-no .bn { font-size: 33px; font-weight: 900; line-height: 1.15; }
     .bus-no .bc { font-size: 18px; font-weight: 800; }
-    .bc-chev { display: none; }
 
-    .bus-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 12px 0; }
+    .bus-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 12px 12px 12px 0; }
 
     .info-line { display: flex; align-items: flex-start; gap: 10px; font-size: 22px; font-weight: 800; line-height: 1.4; }
     .info-tag { flex: 0 0 auto; padding: 1px 10px; border-radius: 8px; color: #fff; font-size: 18px; font-weight: 900; line-height: 1.6; }
@@ -1190,8 +1203,6 @@
     .vp { display: inline-block; }
     .info-sub { display: inline-block; margin-left: 12px; color: var(--muted); font-size: 0.9em; }
 
-    .bus-chev { flex: 0 0 auto; display: flex; align-items: center; padding-right: 12px; font-size: 24px; color: var(--main-dark); }
-
     .bus-panel { margin-top: 8px; }
     .bs-facts { display: grid; gap: 8px; margin-bottom: 10px; }
 
@@ -1201,15 +1212,13 @@
       .mode-btn { font-size: 19px; padding: 18px 4px; }
       .mode-switch:not(.three) .mode-btn { font-size: 22px; }
       #rosterPanel .col-card { padding: 14px 10px; }
-      .bus-row { gap: 10px; }
+      .bus-main { gap: 10px; }
       .bus-no { flex-basis: 70px; }
       .bus-no .bn { font-size: 25px; }
       .bus-no .bc { font-size: 16px; }
       .info-line { gap: 8px; font-size: 20px; }
       .info-tag { padding: 1px 7px; font-size: 16px; }
       .info-sub { display: block; margin-left: 0; font-size: 0.85em; }
-      .bus-chev { display: none; }
-      .bc-chev { display: inline; }
       .bus-info { padding-right: 8px; }
     }
   </style>
@@ -1841,13 +1850,15 @@
         return `
           <div class="bus-item">
             <button type="button" class="bus-row${isOpen ? " open" : ""}" data-bus="${escapeHtml(bus)}" aria-expanded="${isOpen}" onclick="selectBusCard(this.dataset.bus)">
-              <span class="bus-no"><span class="bn">${escapeHtml(f.label)}</span><span class="bc">${f.people.length} 人<span class="bc-chev"> ${isOpen ? "▲" : "▼"}</span></span></span>
-              <span class="bus-info">
-                ${infoLine("cap", f.capLabel, f.capValue)}
-                ${infoLine("place", "集合", f.place, f.placeSub)}
-                ${infoLine("time", "出發", f.time)}
+              <span class="bus-main">
+                <span class="bus-no"><span class="bn">${escapeHtml(f.label)}</span><span class="bc">${f.people.length} 人</span></span>
+                <span class="bus-info">
+                  ${infoLine("cap", f.capLabel, f.capValue)}
+                  ${infoLine("place", "集合", f.place, f.placeSub)}
+                  ${infoLine("time", "出發", f.time)}
+                </span>
               </span>
-              <span class="bus-chev">${isOpen ? "▲" : "▼"}</span>
+              <span class="bus-toggle">${isOpen ? "收起名單 ▲" : "點這裡看全部名單 ▼"}</span>
             </button>
             ${isOpen ? `<div class="bus-panel">${busSheetHtml(bus, "", true)}</div>` : ""}
           </div>`;
