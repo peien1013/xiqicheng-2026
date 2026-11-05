@@ -1165,11 +1165,13 @@
     .query-btn { font-size: 23px; }
     .mode-switch:not(.three) .mode-btn { font-size: 25px; }
 
-    /* 各車次名單：左邊車次，右邊車長／集合／出發各用一個顏色的標籤 */
-    .bus-list { display: grid; gap: 12px; }
+    /* 各車次名單：一車一方塊，左右兩格並排（左 1車 右 2車…），點了在那一排下面展開名單 */
+    .bus-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 
     .bus-row {
       width: 100%;
+      height: 100%;
+      min-width: 0;
       display: flex;
       flex-direction: column;
       padding: 0;
@@ -1186,9 +1188,10 @@
     .bus-row:focus-visible { outline: 3px solid var(--selected-line); outline-offset: 2px; }
     .bus-row.open { border-color: var(--selected-line); }
 
-    .bus-main { display: flex; align-items: stretch; gap: 14px; }
+    .bus-main { flex: 1 1 auto; display: flex; flex-direction: column; }
 
     .bus-toggle {
+      flex: none;
       display: block;
       padding: 8px 10px;
       border-top: 2px solid var(--blue-line);
@@ -1202,13 +1205,13 @@
     .bus-row.open .bus-toggle { background: var(--selected); border-top-color: var(--selected-line); color: #6b4a00; }
 
     .bus-no {
-      flex: 0 0 108px;
+      flex: none;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      flex-wrap: wrap;
+      align-items: baseline;
       justify-content: center;
-      gap: 4px;
-      padding: 12px 6px;
+      gap: 2px 10px;
+      padding: 10px 6px;
       background: linear-gradient(180deg, var(--main), var(--main-dark));
       color: #fff;
       text-align: center;
@@ -1217,19 +1220,20 @@
     .bus-no .bn { font-size: 33px; font-weight: 900; line-height: 1.15; }
     .bus-no .bc { font-size: 18px; font-weight: 800; }
 
-    .bus-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 12px 12px 12px 0; }
+    .bus-info { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 8px; padding: 12px; }
 
     .info-line { display: flex; align-items: flex-start; gap: 10px; font-size: 22px; font-weight: 800; line-height: 1.4; }
     .info-tag { flex: 0 0 auto; padding: 1px 10px; border-radius: 8px; color: #fff; font-size: 18px; font-weight: 900; line-height: 1.6; }
     .info-tag.cap { background: #0f6f9c; }
     .info-tag.place { background: #157347; }
     .info-tag.time { background: #c2410c; }
-    .info-val { min-width: 0; overflow-wrap: anywhere; }
+    .info-val { min-width: 0; word-break: keep-all; overflow-wrap: anywhere; }
     .info-val.time { color: #c2410c; font-weight: 900; }
-    .vp { display: inline-block; }
+    .vp { display: inline-block; max-width: 100%; }
     .info-sub { display: inline-block; margin-left: 12px; color: var(--muted); font-size: 0.9em; }
+    .bus-row .info-sub { display: block; margin-left: 0; }
 
-    .bus-panel { margin-top: 8px; }
+    .bus-panel { grid-column: 1 / -1; min-width: 0; }
     .bs-facts { display: grid; gap: 8px; margin-bottom: 10px; }
 
     @media (max-width: 560px) {
@@ -1238,14 +1242,18 @@
       .mode-btn { font-size: 19px; padding: 18px 4px; }
       .mode-switch:not(.three) .mode-btn { font-size: 22px; }
       #rosterPanel .col-card { padding: 14px 10px; }
-      .bus-main { gap: 10px; }
-      .bus-no { flex-basis: 70px; }
+      .bus-list { gap: 8px; }
+      .bus-no { gap: 2px 8px; padding: 8px 4px; }
       .bus-no .bn { font-size: 25px; }
       .bus-no .bc { font-size: 16px; }
       .info-line { gap: 8px; font-size: 20px; }
       .info-tag { padding: 1px 7px; font-size: 16px; }
       .info-sub { display: block; margin-left: 0; font-size: 0.85em; }
-      .bus-info { padding-right: 8px; }
+      /* 手機一格很窄：標籤放上面、內容放下面，字才不會被切開 */
+      .bus-info { gap: 7px; padding: 8px; }
+      .bus-row .info-line { flex-direction: column; gap: 2px; font-size: 19px; line-height: 1.3; }
+      .bus-row .info-tag { font-size: 15px; line-height: 1.5; }
+      .bus-toggle { padding: 7px 4px; font-size: 18px; }
     }
   </style>
 </head>
@@ -1815,10 +1823,15 @@
       renderBusSheet(bus, document.getElementById("rosterList"), "");
     }
 
-    // 兩站的車（例：三多全家＋文化中心）照站點換行，不要從站名中間斷開
+    // 兩站的車（例：三多全家＋文化中心）照站點換行，不要從站名中間斷開；
+    // 地名太長放不下時，只從「路、道場、汽車、營業所」後面和括號前面換行
+    function softBreaks(html) {
+      return html.replace(/(路|道場|汽車|營業所)/g, "$1<wbr>").replace(/（/g, "<wbr>（");
+    }
+
     function valueParts(text) {
       return String(text).split(/(?=＋|→)/).map(function (part) {
-        return `<span class="vp">${escapeHtml(part.trim())}</span>`;
+        return `<span class="vp">${softBreaks(escapeHtml(part.trim()))}</span>`;
       }).join(" ");
     }
 
@@ -1865,7 +1878,7 @@
       return parts.replace("（", "<br>（");
     }
 
-    // 各車次名單（主畫面）：左邊車次，右邊車長/集合/出發，點了就在下面展開全部名單
+    // 各車次名單（主畫面）：一車一方塊、左右兩格並排，點了就在那一排下面展開全部名單
     function renderBusCards() {
       const grid = document.getElementById("busCards");
       if (!grid) return;
@@ -1887,24 +1900,26 @@
         return ka - kb;
       });
 
-      grid.innerHTML = buses.map(function (bus) {
+      // 名單要放在「那一排」兩格的後面，才不會把旁邊那格擠開
+      const openIndex = buses.indexOf(openBus);
+      const panelAfter = openIndex < 0 ? -1 : Math.min(openIndex | 1, buses.length - 1);
+
+      grid.innerHTML = buses.map(function (bus, i) {
         const f = busFacts(bus);
         const isOpen = bus === openBus;
-        return `
-          <div class="bus-item">
-            <button type="button" class="bus-row${isOpen ? " open" : ""}" data-bus="${escapeHtml(bus)}" aria-expanded="${isOpen}" onclick="selectBusCard(this.dataset.bus)">
-              <span class="bus-main">
-                <span class="bus-no"><span class="bn">${escapeHtml(f.label)}</span><span class="bc">${f.people.length} 人</span></span>
-                <span class="bus-info">
-                  ${infoLine("cap", f.capLabel, f.capValue)}
-                  ${infoLine("place", "集合", f.place, f.placeSub)}
-                  ${infoLine("time", "出發", f.time)}
-                </span>
+        const card = `
+          <button type="button" class="bus-row${isOpen ? " open" : ""}" data-bus="${escapeHtml(bus)}" aria-expanded="${isOpen}" onclick="selectBusCard(this.dataset.bus)">
+            <span class="bus-main">
+              <span class="bus-no"><span class="bn">${escapeHtml(f.label)}</span><span class="bc">${f.people.length} 人</span></span>
+              <span class="bus-info">
+                ${infoLine("cap", f.capLabel, f.capValue)}
+                ${infoLine("place", "集合", f.place, f.placeSub)}
+                ${infoLine("time", "出發", f.time)}
               </span>
-              <span class="bus-toggle">${isOpen ? "收起名單 ▲" : "點這裡看全部名單 ▼"}</span>
-            </button>
-            ${isOpen ? `<div class="bus-panel">${busSheetHtml(bus, "", true)}</div>` : ""}
-          </div>`;
+            </span>
+            <span class="bus-toggle">${isOpen ? "收起名單 ▲" : "點這裡看名單 ▼"}</span>
+          </button>`;
+        return i === panelAfter ? card + `<div class="bus-panel">${busSheetHtml(openBus, "", true)}</div>` : card;
       }).join("");
     }
 
@@ -1955,7 +1970,7 @@
       const driverRow = (!isSelf && (info.plate || info.driver || info.driverPhone))
         ? `<div class="bs-meta"><span>車號：${escapeHtml(info.plate || "—")}</span><span>司機：${escapeHtml(info.driver || "—")}</span><span>電話：${escapeHtml(info.driverPhone || "—")}</span></div>`
         : "";
-      const head = inline ? "" : `
+      const head = `
           <div class="bs-head">
             <span class="bs-bus">${escapeHtml(f.label)}</span>
             <span class="bs-count">共 ${people.length} 人</span>
