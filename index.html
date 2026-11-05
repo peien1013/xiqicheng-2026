@@ -761,10 +761,12 @@
 
     .mode-switch {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 10px;
       margin-bottom: 18px;
     }
+
+    .mode-switch.three { grid-template-columns: repeat(3, 1fr); }
 
     .mode-btn {
       padding: 20px 8px;
@@ -1135,11 +1137,80 @@
     .section-label { font-size: 25px; }
     #queryName { font-size: 24px; }
     .query-btn { font-size: 23px; }
+    .mode-switch:not(.three) .mode-btn { font-size: 25px; }
+
+    /* 各車次名單：左邊車次，右邊車長／集合／出發各用一個顏色的標籤 */
+    .bus-list { display: grid; gap: 12px; }
+
+    .bus-row {
+      width: 100%;
+      display: flex;
+      align-items: stretch;
+      gap: 14px;
+      padding: 0;
+      overflow: hidden;
+      border: 3px solid var(--blue-line);
+      border-radius: 18px;
+      background: #fff;
+      color: var(--text);
+      font-family: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .bus-row:focus-visible { outline: 3px solid var(--selected-line); outline-offset: 2px; }
+    .bus-row.open { border-color: var(--selected-line); }
+
+    .bus-no {
+      flex: 0 0 108px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 12px 6px;
+      background: linear-gradient(180deg, var(--main), var(--main-dark));
+      color: #fff;
+      text-align: center;
+    }
+
+    .bus-no .bn { font-size: 33px; font-weight: 900; line-height: 1.15; }
+    .bus-no .bc { font-size: 18px; font-weight: 800; }
+    .bc-chev { display: none; }
+
+    .bus-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 12px 0; }
+
+    .info-line { display: flex; align-items: flex-start; gap: 10px; font-size: 22px; font-weight: 800; line-height: 1.4; }
+    .info-tag { flex: 0 0 auto; padding: 1px 10px; border-radius: 8px; color: #fff; font-size: 18px; font-weight: 900; line-height: 1.6; }
+    .info-tag.cap { background: #0f6f9c; }
+    .info-tag.place { background: #157347; }
+    .info-tag.time { background: #c2410c; }
+    .info-val { min-width: 0; overflow-wrap: anywhere; }
+    .info-val.time { color: #c2410c; font-weight: 900; }
+    .vp { display: inline-block; }
+    .info-sub { display: inline-block; margin-left: 12px; color: var(--muted); font-size: 0.9em; }
+
+    .bus-chev { flex: 0 0 auto; display: flex; align-items: center; padding-right: 12px; font-size: 24px; color: var(--main-dark); }
+
+    .bus-panel { margin-top: 8px; }
+    .bs-facts { display: grid; gap: 8px; margin-bottom: 10px; }
 
     @media (max-width: 560px) {
       .pickup-btn { font-size: 23px; }
       .pickup-btn small { font-size: 18px; }
       .mode-btn { font-size: 19px; padding: 18px 4px; }
+      .mode-switch:not(.three) .mode-btn { font-size: 22px; }
+      #rosterPanel .col-card { padding: 14px 10px; }
+      .bus-row { gap: 10px; }
+      .bus-no { flex-basis: 70px; }
+      .bus-no .bn { font-size: 25px; }
+      .bus-no .bc { font-size: 16px; }
+      .info-line { gap: 8px; font-size: 20px; }
+      .info-tag { padding: 1px 7px; font-size: 16px; }
+      .info-sub { display: block; margin-left: 0; font-size: 0.85em; }
+      .bus-chev { display: none; }
+      .bc-chev { display: inline; }
+      .bus-info { padding-right: 8px; }
     }
   </style>
 </head>
@@ -1198,10 +1269,10 @@
         </div>
       </section>
 
-      <section class="mode-switch">
-        <button type="button" id="tabRoster" class="mode-btn signup" onclick="setMode('roster')">🚌 各車次</button>
-        <button type="button" id="tabQuery" class="mode-btn query" onclick="setMode('query')">🔍 查詢</button>
-        <button type="button" id="tabUnpaid" class="mode-btn pay" onclick="setMode('unpaid')">💰 未付款</button>
+      <section id="modeSwitch" class="mode-switch">
+        <button type="button" id="tabRoster" class="mode-btn signup" onclick="setMode('roster')">🚌 各車次名單</button>
+        <button type="button" id="tabQuery" class="mode-btn query" onclick="setMode('query')">🔍 查詢姓名</button>
+        <button type="button" id="tabUnpaid" class="mode-btn pay" onclick="setMode('unpaid')" hidden>💰 未付款</button>
       </section>
 
       <div id="unpaidPanel" class="mode-panel">
@@ -1215,9 +1286,8 @@
       <div id="rosterPanel" class="mode-panel">
         <div class="col-card signup">
           <h2 class="col-title" style="color:#0a6388;border-bottom-color:#bfe5f6;">🚌 各車次名單</h2>
-          <p class="step-sub">點選車次，看車長、集合地點、出發時間與全部名單。</p>
-          <div id="busCards" class="pickup-grid"></div>
-          <div id="busDetail"></div>
+          <p class="step-sub">點一下車次，就會展開這台車的全部名單。</p>
+          <div id="busCards" class="bus-list"></div>
         </div>
       </div>
 
@@ -1517,6 +1587,14 @@
     let rosterData = [];
     let busInfoData = {};
     let busOrder = [];
+    let openBus = "";
+
+    // 未付款名單先不公開（程式都留著）：要再打開，把 false 改成 true
+    const SHOW_UNPAID = false;
+    if (SHOW_UNPAID) {
+      document.getElementById("tabUnpaid").hidden = false;
+      document.getElementById("modeSwitch").classList.add("three");
+    }
 
     function setMode(mode) {
       document.getElementById("rosterPanel").classList.toggle("show", mode === "roster");
@@ -1700,15 +1778,48 @@
       renderBusSheet(bus, document.getElementById("rosterList"), "");
     }
 
-    // 各車次名單（主畫面）：每台車一張卡，顯示車長/集合/出發，點了看全部名單
+    // 兩站的車（例：三多全家＋文化中心）照站點換行，不要從站名中間斷開
+    function valueParts(text) {
+      return String(text).split(/(?=＋|→)/).map(function (part) {
+        return `<span class="vp">${escapeHtml(part.trim())}</span>`;
+      }).join(" ");
+    }
+
+    function infoLine(kind, label, value, sub) {
+      const valueClass = kind === "time" ? "info-val time" : "info-val";
+      const subHtml = sub ? `<span class="info-sub">${valueParts(sub)}</span>` : "";
+      return `<span class="info-line"><span class="info-tag ${kind}">${escapeHtml(label)}</span><span class="${valueClass}">${valueParts(value || "—")}${subHtml}</span></span>`;
+    }
+
+    // 一台車要顯示的資料：集合＝上車地點＋細部地點（例：高雄文化中心　五福路大門口）
+    function busFacts(busNo) {
+      const people = rosterData.filter(function (r) { return r.busNo === busNo; });
+      const info = busInfoData[busNo] || {};
+      const isSelf = String(busNo).indexOf("自行") >= 0;
+      const pickupName = people.length ? people[0].pickup : "";
+      const pickups = latestData.pickups || DEFAULT_DATA.pickups || [];
+      const pk = pickups.find(function (p) { return p.name === pickupName; }) || {};
+
+      return {
+        people: people,
+        info: info,
+        isSelf: isSelf,
+        label: isSelf ? "自行開車" : busNo,
+        capLabel: isSelf ? "負責人" : "車長",
+        capValue: isSelf ? [info.captain, info.viceCaptain].filter(Boolean).join("、") : info.captain,
+        place: pickupName,
+        placeSub: isSelf ? "" : pk.location,
+        time: pk.departureTime
+      };
+    }
+
+    // 各車次名單（主畫面）：左邊車次，右邊車長/集合/出發，點了就在下面展開全部名單
     function renderBusCards() {
       const grid = document.getElementById("busCards");
-      const detail = document.getElementById("busDetail");
       if (!grid) return;
 
       if (!rosterData.length) {
         grid.innerHTML = `<div class="roster-empty">目前尚無名單（或後台尚未啟用查詢功能）。</div>`;
-        if (detail) detail.innerHTML = "";
         return;
       }
 
@@ -1724,56 +1835,53 @@
         return ka - kb;
       });
 
-      const pickups = latestData.pickups || DEFAULT_DATA.pickups || [];
-
       grid.innerHTML = buses.map(function (bus) {
-        const people = rosterData.filter(function (r) { return r.busNo === bus; });
-        const info = busInfoData[bus] || {};
-        const isSelf = String(bus).indexOf("自行") >= 0;
-        const pickupName = people.length ? people[0].pickup : "";
-        const pk = pickups.find(function (p) { return p.name === pickupName; }) || {};
-
-        const lines = isSelf
-          ? `<small>自行開車</small><small>共 ${people.length} 人</small>`
-          : `<small>車長：${escapeHtml(info.captain || "—")}</small>
-             <small>集合：${escapeHtml(pk.location || pickupName || "—")}</small>
-             <small>出發：${escapeHtml(pk.departureTime || "—")}</small>
-             <small>共 ${people.length} 人</small>`;
-
-        return `<button type="button" class="pickup-btn" data-bus="${escapeHtml(bus)}" onclick="selectBusCard(this.dataset.bus)">${escapeHtml(isSelf ? "自行開車" : bus)}${lines}</button>`;
+        const f = busFacts(bus);
+        const isOpen = bus === openBus;
+        return `
+          <div class="bus-item">
+            <button type="button" class="bus-row${isOpen ? " open" : ""}" data-bus="${escapeHtml(bus)}" aria-expanded="${isOpen}" onclick="selectBusCard(this.dataset.bus)">
+              <span class="bus-no"><span class="bn">${escapeHtml(f.label)}</span><span class="bc">${f.people.length} 人<span class="bc-chev"> ${isOpen ? "▲" : "▼"}</span></span></span>
+              <span class="bus-info">
+                ${infoLine("cap", f.capLabel, f.capValue)}
+                ${infoLine("place", "集合", f.place, f.placeSub)}
+                ${infoLine("time", "出發", f.time)}
+              </span>
+              <span class="bus-chev">${isOpen ? "▲" : "▼"}</span>
+            </button>
+            ${isOpen ? `<div class="bus-panel">${busSheetHtml(bus, "", true)}</div>` : ""}
+          </div>`;
       }).join("");
-
-      if (detail) {
-        detail.innerHTML = `<div class="roster-empty" style="margin-top:14px;">👆 點上面的車次，看車長、集合、出發與全部名單。</div>`;
-      }
     }
 
     function selectBusCard(bus) {
-      document.querySelectorAll("#busCards .pickup-btn").forEach(function (b) {
-        b.classList.toggle("active", b.dataset.bus === bus);
+      openBus = openBus === bus ? "" : bus;
+      renderBusCards();
+      const row = Array.from(document.querySelectorAll("#busCards .bus-row")).find(function (b) {
+        return b.dataset.bus === bus;
       });
-      const detail = document.getElementById("busDetail");
-      renderBusSheet(bus, detail, "");
-      if (detail) detail.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      if (row) {
+        row.focus({ preventScroll: true });
+        row.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
     }
 
     function renderBusSheet(busNo, container, highlightName) {
       if (!container) return;
+      container.innerHTML = busSheetHtml(busNo, highlightName, false);
+    }
 
-      const people = rosterData
-        .filter(function (r) { return r.busNo === busNo; })
-        .sort(function (a, b) { return (Number(a.seatNo) || 0) - (Number(b.seatNo) || 0); });
+    // inline＝展開在車次卡片下面（車長/集合/出發卡片上已經有，不重複）
+    function busSheetHtml(busNo, highlightName, inline) {
+      const f = busFacts(busNo);
+      const info = f.info;
+      const isSelf = f.isSelf;
 
-      if (!people.length) {
-        container.innerHTML = `<div class="roster-empty">這個車次目前沒有名單。</div>`;
-        return;
+      if (!f.people.length) {
+        return `<div class="roster-empty">這個車次目前沒有名單。</div>`;
       }
 
-      const isSelf = String(busNo).indexOf("自行") >= 0;
-      const info = busInfoData[busNo] || {};
-      const pickupName = people[0].pickup;
-      const pickups = latestData.pickups || DEFAULT_DATA.pickups;
-      const pickup = pickups.find(function (p) { return p.name === pickupName; }) || {};
+      const people = f.people.slice().sort(function (a, b) { return (Number(a.seatNo) || 0) - (Number(b.seatNo) || 0); });
 
       const seats = people.map(function (p, i) {
         const no = isSelf ? "" : (Number(p.seatNo) || (i + 1));
@@ -1781,19 +1889,24 @@
         return `<div class="${cls}">${isSelf ? "" : `<span class="bs-no">${no}</span>`}${escapeHtml(p.name)}${p.identity === "小孩" ? "（小孩）" : ""}</div>`;
       }).join("");
 
-      const metaRows = isSelf ? "" : `
-        <div class="bs-meta"><span>車長：${escapeHtml(info.captain || "—")}</span><span>副車長：${escapeHtml(info.viceCaptain || "—")}</span></div>
-        <div class="bs-meta"><span>車號：${escapeHtml(info.plate || "—")}</span><span>司機：${escapeHtml(info.driver || "—")}</span><span>電話：${escapeHtml(info.driverPhone || "—")}</span></div>
-      `;
-
-      container.innerHTML = `
-        <div class="bus-sheet">
+      const viceLine = (!isSelf && info.viceCaptain) ? infoLine("cap", "副車長", info.viceCaptain) : "";
+      const facts = inline
+        ? viceLine
+        : infoLine("cap", f.capLabel, f.capValue) + viceLine + infoLine("place", "集合", f.place, f.placeSub) + infoLine("time", "出發", f.time);
+      const driverRow = (!isSelf && (info.plate || info.driver || info.driverPhone))
+        ? `<div class="bs-meta"><span>車號：${escapeHtml(info.plate || "—")}</span><span>司機：${escapeHtml(info.driver || "—")}</span><span>電話：${escapeHtml(info.driverPhone || "—")}</span></div>`
+        : "";
+      const head = inline ? "" : `
           <div class="bs-head">
-            <span class="bs-bus">${escapeHtml(isSelf ? "自行開車" : busNo)}</span>
+            <span class="bs-bus">${escapeHtml(f.label)}</span>
             <span class="bs-count">共 ${people.length} 人</span>
-          </div>
-          <div class="bs-line"><b>出發：</b>${escapeHtml(pickup.departureTime || "")}　${escapeHtml(pickupName)}${pickup.location ? "（" + escapeHtml(pickup.location) + "）" : ""}</div>
-          ${metaRows}
+          </div>`;
+
+      return `
+        <div class="bus-sheet">
+          ${head}
+          ${facts ? `<div class="bs-facts">${facts}</div>` : ""}
+          ${driverRow}
           <div class="bs-grid">${seats}</div>
         </div>
       `;
@@ -1811,6 +1924,8 @@
         if (response.status === "success") {
           latestData = response;
           renderPage(response);
+          // 名單可能比上車地點先載入，這裡補畫一次，集合/出發才不會缺
+          if (rosterData.length) renderBusCards();
         } else {
           latestData = DEFAULT_DATA;
           renderPage(DEFAULT_DATA);
