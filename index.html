@@ -4,6 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>2026 西岐城西方道堂之旅報名</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="favicon-512.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <style>
     :root {
       --main: #0f80ad;
@@ -1059,6 +1062,29 @@
       text-align: center;
     }
 
+    .bs-seat.other-stop {
+      background: #f9e3de;
+      border-color: #e6b8af;
+    }
+
+    .bs-stop {
+      display: block;
+      font-size: 0.62em;
+      font-weight: 700;
+      color: #a14a3a;
+      white-space: nowrap;
+    }
+
+    .bs-stop-note {
+      margin-top: 12px;
+      padding: 10px 14px;
+      background: #f9e3de;
+      border: 2px solid #e6b8af;
+      border-radius: 12px;
+      font-size: 19px;
+      line-height: 1.6;
+    }
+
     .bs-seat.me {
       background: var(--selected);
       border-color: var(--selected-line);
@@ -1707,8 +1733,10 @@
 
       const busNo = matches[0].busNo;
       const busLabel = String(busNo).indexOf("自行") >= 0 ? "自行開車" : busNo;
+      const myStop = busFacts(busNo).otherStops.find(function (s) { return s.name === matches[0].pickup; });
       box.innerHTML = `
         <div class="qr-banner">${escapeHtml(name)}　在　<b>${escapeHtml(busLabel)}</b></div>
+        ${myStop ? `<div class="bs-stop-note"><b>你在 ${escapeHtml(myStop.name)} 上車</b><br>${stopDetail(myStop)}</div>` : ""}
         <div id="queryBusSheet"></div>
       `;
       renderBusSheet(busNo, document.getElementById("queryBusSheet"), name);
@@ -1805,9 +1833,17 @@
       const people = rosterData.filter(function (r) { return r.busNo === busNo; });
       const info = busInfoData[busNo] || {};
       const isSelf = String(busNo).indexOf("自行") >= 0;
-      const pickupName = people.length ? people[0].pickup : "";
+      // 同車有人分站上車時，人數最多的站當主要集合點，其他站另外標出來（例：8車紅底在三多全家上車）
+      const counts = {};
+      people.forEach(function (p) { counts[p.pickup] = (counts[p.pickup] || 0) + 1; });
+      const stops = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; });
+      const pickupName = stops[0] || "";
       const pickups = latestData.pickups || DEFAULT_DATA.pickups || [];
       const pk = pickups.find(function (p) { return p.name === pickupName; }) || {};
+      const otherStops = stops.slice(1).map(function (name) {
+        const stop = pickups.find(function (p) { return p.name === name; }) || {};
+        return { name: name, count: counts[name], time: stop.departureTime, location: stop.location };
+      });
 
       return {
         people: people,
@@ -1818,8 +1854,15 @@
         capValue: isSelf ? [info.captain, info.viceCaptain].filter(Boolean).join("、") : info.captain,
         place: pickupName,
         placeSub: isSelf ? "" : pk.location,
-        time: pk.departureTime
+        time: pk.departureTime,
+        otherStops: otherStops
       };
+    }
+
+    // 分站上車的說明：時間｜地點，括號裡的備註（例：誰幫忙點名）換一行
+    function stopDetail(stop) {
+      const parts = [stop.time, stop.location].filter(Boolean).map(escapeHtml).join("｜");
+      return parts.replace("（", "<br>（");
     }
 
     // 各車次名單（主畫面）：左邊車次，右邊車長/集合/出發，點了就在下面展開全部名單
@@ -1896,8 +1939,13 @@
 
       const seats = people.map(function (p, i) {
         const no = isSelf ? "" : (Number(p.seatNo) || (i + 1));
-        const cls = (highlightName && p.name === highlightName) ? "bs-seat me" : "bs-seat";
-        return `<div class="${cls}">${isSelf ? "" : `<span class="bs-no">${no}</span>`}${escapeHtml(p.name)}${p.identity === "小孩" ? "（小孩）" : ""}</div>`;
+        const otherStop = !isSelf && p.pickup !== f.place;
+        const cls = "bs-seat" + (otherStop ? " other-stop" : "") + ((highlightName && p.name === highlightName) ? " me" : "");
+        return `<div class="${cls}">${isSelf ? "" : `<span class="bs-no">${no}</span>`}${escapeHtml(p.name)}${p.identity === "小孩" ? "（小孩）" : ""}${otherStop ? `<span class="bs-stop">${escapeHtml(p.pickup)}上車</span>` : ""}</div>`;
+      }).join("");
+
+      const stopNotes = f.otherStops.map(function (s) {
+        return `<div class="bs-stop-note"><b>紅底 ${s.count} 位：${escapeHtml(s.name)}上車</b><br>${stopDetail(s)}</div>`;
       }).join("");
 
       const viceLine = (!isSelf && info.viceCaptain) ? infoLine("cap", "副車長", info.viceCaptain) : "";
@@ -1918,6 +1966,7 @@
           ${head}
           ${facts ? `<div class="bs-facts">${facts}</div>` : ""}
           ${driverRow}
+          ${stopNotes}
           <div class="bs-grid">${seats}</div>
         </div>
       `;
